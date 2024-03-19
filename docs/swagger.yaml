@@ -1,0 +1,128 @@
+definitions:
+  request.ChangePasswordRequest:
+    properties:
+      newPassword:
+        type: string
+      password:
+        type: string
+    type: object
+  request.LoginRequest:
+    properties:
+      password:
+        example: 密码
+        type: string
+      username:
+        example: 用户名
+        type: string
+    type: object
+  request.RegisterRequest:
+    properties:
+      password:
+        example: 密码
+        type: string
+      username:
+        example: 用户名
+        type: string
+    type: object
+  response.ChangePasswordResponse:
+    properties:
+      msg:
+        type: string
+    type: object
+  response.LoginResponse:
+    properties:
+      token:
+        type: string
+      username:
+        type: string
+    type: object
+  response.RegisterResponse:
+    properties:
+      username:
+        type: string
+    type: object
+  response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /index:
+    get:
+      responses: {}
+  /user/changePassword:
+    post:
+      parameters:
+      - description: 用户名, 密码, 新密码
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ChangePasswordRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ChangePasswordResponse'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - User
+  /user/login:
+    post:
+      parameters:
+      - description: 用户名, 密码
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.LoginResponse'
+              type: object
+      tags:
+      - User
+  /user/register:
+    post:
+      parameters:
+      - description: 用户名, 密码
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.RegisterResponse'
+              type: object
+      tags:
+      - User
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
