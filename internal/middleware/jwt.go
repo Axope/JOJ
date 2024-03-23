@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func JWTAuth() gin.HandlerFunc {
+func JWTAuth(checkAdmin bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		j := jwt.GetJWT()
 
@@ -24,6 +24,13 @@ func JWTAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
+		if checkAdmin && claims.Admin == 0 {
+			c.JSON(http.StatusOK, response.FailMsg("requires administrator privileges"))
+			c.Abort()
+			return
+		}
+
 		c.Set("claims", claims)
 		c.Next()
 	}

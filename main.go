@@ -14,18 +14,29 @@ import (
 // @in							header
 // @name						Authorization
 func main() {
+	// load configs
 	configs.InitConfigs()
 
+	// log
 	log.InitLogger()
 	defer log.Logger.Sync()
 	log.Logger.Info("Golbal log init success")
+	// mysql
 	if err := dao.InitMysql(); err != nil {
 		log.Logger.Error("mysql init failed")
 		return
 	} else {
 		log.Logger.Info("mysql init success")
 	}
+	// mongoDB
+	if err := dao.InitMongo(); err != nil {
+		log.Logger.Error("mongoDB init failed")
+		return
+	} else {
+		log.Logger.Info("mongoDB init success")
+	}
 
+	// jwt
 	jwt.InitJWT()
 
 	router := router.NewRouter()

@@ -10,6 +10,7 @@ type Configs struct {
 	Log   LogConfig
 	Mysql MysqlConfig
 	JWT   JWTConfig
+	Mongo MongoConfig
 }
 
 var cfg Configs
@@ -36,4 +37,7 @@ func GetMysqlConfig() MysqlConfig {
 }
 func GetJWTConfig() JWTConfig {
 	return cfg.JWT
+}
+func GetMongoConfig() MongoConfig {
+	return cfg.Mongo
 }
