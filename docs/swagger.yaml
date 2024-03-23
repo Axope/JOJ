@@ -1,4 +1,43 @@
 definitions:
+  model.Problem:
+    properties:
+      dataRange:
+        description: options
+        type: string
+      description:
+        type: string
+      memoryLimit:
+        type: integer
+      pid:
+        type: string
+      point:
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+      testSamples:
+        items:
+          $ref: '#/definitions/model.TestCase'
+        type: array
+      timeLimit:
+        type: integer
+      title:
+        type: string
+      tutorial:
+        type: string
+    type: object
+  model.TestCase:
+    properties:
+      explanation:
+        type: string
+      input:
+        type: string
+      note:
+        type: string
+      output:
+        type: string
+    type: object
   request.ChangePasswordRequest:
     properties:
       newPassword:
@@ -29,6 +68,18 @@ definitions:
       msg:
         type: string
     type: object
+  response.GetProblemListResponse:
+    properties:
+      problems:
+        items:
+          $ref: '#/definitions/model.Problem'
+        type: array
+    type: object
+  response.GetProblemResponse:
+    properties:
+      problem:
+        $ref: '#/definitions/model.Problem'
+    type: object
   response.LoginResponse:
     properties:
       token:
@@ -55,6 +106,45 @@ paths:
   /index:
     get:
       responses: {}
+  /problem/getProblem:
+    get:
+      parameters:
+      - in: query
+        name: pid
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GetProblemResponse'
+              type: object
+      tags:
+      - Problem
+  /problem/getProblemList:
+    get:
+      parameters:
+      - in: query
+        name: length
+        type: integer
+      - in: query
+        name: startIndex
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GetProblemListResponse'
+              type: object
+      tags:
+      - Problem
   /user/changePassword:
     post:
       parameters:

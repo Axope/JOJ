@@ -20,6 +20,79 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/problem/getProblem": {
+            "get": {
+                "tags": [
+                    "Problem"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "pid",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.GetProblemResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/problem/getProblemList": {
+            "get": {
+                "tags": [
+                    "Problem"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "length",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "startIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.GetProblemListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/user/changePassword": {
             "post": {
                 "security": [
@@ -141,6 +214,65 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.Problem": {
+            "type": "object",
+            "properties": {
+                "dataRange": {
+                    "description": "options",
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "memoryLimit": {
+                    "type": "integer"
+                },
+                "pid": {
+                    "type": "string"
+                },
+                "point": {
+                    "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "testSamples": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.TestCase"
+                    }
+                },
+                "timeLimit": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "tutorial": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.TestCase": {
+            "type": "object",
+            "properties": {
+                "explanation": {
+                    "type": "string"
+                },
+                "input": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "output": {
+                    "type": "string"
+                }
+            }
+        },
         "request.ChangePasswordRequest": {
             "type": "object",
             "properties": {
@@ -183,6 +315,25 @@ const docTemplate = `{
             "properties": {
                 "msg": {
                     "type": "string"
+                }
+            }
+        },
+        "response.GetProblemListResponse": {
+            "type": "object",
+            "properties": {
+                "problems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Problem"
+                    }
+                }
+            }
+        },
+        "response.GetProblemResponse": {
+            "type": "object",
+            "properties": {
+                "problem": {
+                    "$ref": "#/definitions/model.Problem"
                 }
             }
         },
