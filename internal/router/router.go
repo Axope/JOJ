@@ -38,14 +38,18 @@ func NewRouter() *gin.Engine {
 		publicProblemGroup.GET("getProblemList", v1.ProblemAPI.GetProblemList)
 		publicProblemGroup.GET("getProblem", v1.ProblemAPI.GetProblem)
 	}
+	publicSubmissionGroup := router.Group("/submission")
+	{
+		publicSubmissionGroup.GET("getSubmissionList", v1.Submission.GetSubmissionList)
+	}
 
 	privateUserGroup := router.Group("/user")
 	privateUserGroup.Use(middleware.JWTAuth(false))
 	{
 		privateUserGroup.POST("/changePassword", v1.UserAPI.ChangePassword)
 	}
-	privateProblemGroup := router.Group("/problem")
-	privateProblemGroup.Use(middleware.JWTAuth(true))
+	// privateProblemGroup := router.Group("/problem")
+	// privateProblemGroup.Use(middleware.JWTAuth(true))
 	// {
 	// 	privateProblemGroup.POST("/createProblem", v1.ProblemAPI.CreateProblem)
 	// 	privateProblemGroup.PUT("/updateProblem", v1.ProblemAPI.UpdateProblem)
