@@ -1,6 +1,6 @@
 package configs
 
 type JWTConfig struct {
-	SigningKey string
-	Expire     string
+	SigningKey string `yaml:"signingKey"`
+	Expire     string `yaml:"expire"`
 }
