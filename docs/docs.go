@@ -93,6 +93,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/submission/getSubmissionList": {
+            "get": {
+                "tags": [
+                    "Submission"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "pid",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "uid",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.GetSubmissionListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/user/changePassword": {
             "post": {
                 "security": [
@@ -214,6 +253,21 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.LangSet": {
+            "type": "string",
+            "enum": [
+                "Cpp",
+                "Java",
+                "Python",
+                "Go"
+            ],
+            "x-enum-varnames": [
+                "CPP",
+                "JAVA",
+                "PYTHON",
+                "GO"
+            ]
+        },
         "model.Problem": {
             "type": "object",
             "properties": {
@@ -253,6 +307,71 @@ const docTemplate = `{
                 },
                 "tutorial": {
                     "type": "string"
+                }
+            }
+        },
+        "model.StatusSet": {
+            "type": "string",
+            "enum": [
+                "Pending",
+                "Compiling",
+                "Judging",
+                "Compile Error",
+                "Accept",
+                "Wrong Answer",
+                "Time Limit Exceeded",
+                "Memory Limit Exceeded",
+                "Runtime Error",
+                "Output Limit Exceeded",
+                "Unknow Error"
+            ],
+            "x-enum-varnames": [
+                "PENDING",
+                "COMPILING",
+                "JUDGING",
+                "CE",
+                "AC",
+                "WA",
+                "TLE",
+                "MLE",
+                "RE",
+                "OLE",
+                "UKE"
+            ]
+        },
+        "model.Submission": {
+            "type": "object",
+            "properties": {
+                "lang": {
+                    "$ref": "#/definitions/model.LangSet"
+                },
+                "pid": {
+                    "type": "string"
+                },
+                "point": {
+                    "description": "options",
+                    "type": "integer"
+                },
+                "runningMemory": {
+                    "type": "integer"
+                },
+                "runningTime": {
+                    "type": "integer"
+                },
+                "sid": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.StatusSet"
+                },
+                "submitCode": {
+                    "type": "string"
+                },
+                "submitTime": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "integer"
                 }
             }
         },
@@ -334,6 +453,17 @@ const docTemplate = `{
             "properties": {
                 "problem": {
                     "$ref": "#/definitions/model.Problem"
+                }
+            }
+        },
+        "response.GetSubmissionListResponse": {
+            "type": "object",
+            "properties": {
+                "submissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Submission"
+                    }
                 }
             }
         },

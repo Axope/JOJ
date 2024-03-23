@@ -1,4 +1,16 @@
 definitions:
+  model.LangSet:
+    enum:
+    - Cpp
+    - Java
+    - Python
+    - Go
+    type: string
+    x-enum-varnames:
+    - CPP
+    - JAVA
+    - PYTHON
+    - GO
   model.Problem:
     properties:
       dataRange:
@@ -26,6 +38,56 @@ definitions:
         type: string
       tutorial:
         type: string
+    type: object
+  model.StatusSet:
+    enum:
+    - Pending
+    - Compiling
+    - Judging
+    - Compile Error
+    - Accept
+    - Wrong Answer
+    - Time Limit Exceeded
+    - Memory Limit Exceeded
+    - Runtime Error
+    - Output Limit Exceeded
+    - Unknow Error
+    type: string
+    x-enum-varnames:
+    - PENDING
+    - COMPILING
+    - JUDGING
+    - CE
+    - AC
+    - WA
+    - TLE
+    - MLE
+    - RE
+    - OLE
+    - UKE
+  model.Submission:
+    properties:
+      lang:
+        $ref: '#/definitions/model.LangSet'
+      pid:
+        type: string
+      point:
+        description: options
+        type: integer
+      runningMemory:
+        type: integer
+      runningTime:
+        type: integer
+      sid:
+        type: string
+      status:
+        $ref: '#/definitions/model.StatusSet'
+      submitCode:
+        type: string
+      submitTime:
+        type: string
+      uid:
+        type: integer
     type: object
   model.TestCase:
     properties:
@@ -79,6 +141,13 @@ definitions:
     properties:
       problem:
         $ref: '#/definitions/model.Problem'
+    type: object
+  response.GetSubmissionListResponse:
+    properties:
+      submissions:
+        items:
+          $ref: '#/definitions/model.Submission'
+        type: array
     type: object
   response.LoginResponse:
     properties:
@@ -145,6 +214,27 @@ paths:
               type: object
       tags:
       - Problem
+  /submission/getSubmissionList:
+    get:
+      parameters:
+      - in: query
+        name: pid
+        type: string
+      - in: query
+        name: uid
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GetSubmissionListResponse'
+              type: object
+      tags:
+      - Submission
   /user/changePassword:
     post:
       parameters:
