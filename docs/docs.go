@@ -132,6 +132,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/submit": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Submit"
+                ],
+                "parameters": [
+                    {
+                        "description": "提交代码",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SubmitRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.SubmitResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/user/changePassword": {
             "post": {
                 "security": [
@@ -323,7 +366,7 @@ const docTemplate = `{
                 "Memory Limit Exceeded",
                 "Runtime Error",
                 "Output Limit Exceeded",
-                "Unknow Error"
+                "Unknown Error"
             ],
             "x-enum-varnames": [
                 "PENDING",
@@ -429,6 +472,23 @@ const docTemplate = `{
                 }
             }
         },
+        "request.SubmitRequest": {
+            "type": "object",
+            "properties": {
+                "lang": {
+                    "$ref": "#/definitions/model.LangSet"
+                },
+                "pid": {
+                    "type": "string"
+                },
+                "submitCode": {
+                    "type": "string"
+                },
+                "submitTime": {
+                    "type": "string"
+                }
+            }
+        },
         "response.ChangePasswordResponse": {
             "type": "object",
             "properties": {
@@ -493,6 +553,14 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "data": {},
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.SubmitResponse": {
+            "type": "object",
+            "properties": {
                 "msg": {
                     "type": "string"
                 }

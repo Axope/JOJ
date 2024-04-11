@@ -51,7 +51,7 @@ definitions:
     - Memory Limit Exceeded
     - Runtime Error
     - Output Limit Exceeded
-    - Unknow Error
+    - Unknown Error
     type: string
     x-enum-varnames:
     - PENDING
@@ -125,6 +125,17 @@ definitions:
         example: 用户名
         type: string
     type: object
+  request.SubmitRequest:
+    properties:
+      lang:
+        $ref: '#/definitions/model.LangSet'
+      pid:
+        type: string
+      submitCode:
+        type: string
+      submitTime:
+        type: string
+    type: object
   response.ChangePasswordResponse:
     properties:
       msg:
@@ -166,6 +177,11 @@ definitions:
       code:
         type: integer
       data: {}
+      msg:
+        type: string
+    type: object
+  response.SubmitResponse:
+    properties:
       msg:
         type: string
     type: object
@@ -235,6 +251,29 @@ paths:
               type: object
       tags:
       - Submission
+  /submit:
+    post:
+      parameters:
+      - description: 提交代码
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.SubmitRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.SubmitResponse'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Submit
   /user/changePassword:
     post:
       parameters:
