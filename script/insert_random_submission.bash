@@ -21,7 +21,7 @@ function random_lang() {
 }
 
 function random_status() {
-    local STATUSES=("Pending" "Compiling" "Judging" "Compile Error" "Accept" "Wrong Answer" "Time Limit Exceeded" "Memory Limit Exceeded" "Runtime Error" "Output Limit Exceeded" "Unknow Error")
+    local STATUSES=("Pending" "Compiling" "Judging" "Compile Error" "Accept" "Wrong Answer" "Time Limit Exceeded" "Memory Limit Exceeded" "Runtime Error" "Output Limit Exceeded" "Unknown Error")
     local idx=$((RANDOM % ${#STATUSES[@]}))
     echo "${STATUSES[idx]}"
 }

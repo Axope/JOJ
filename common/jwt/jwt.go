@@ -2,7 +2,6 @@ package jwt
 
 import (
 	"errors"
-	"fmt"
 	"github.com/Axope/JOJ/common/request"
 	"github.com/Axope/JOJ/configs"
 	"github.com/gin-gonic/gin"
@@ -112,16 +111,18 @@ func (j *JWT) GetUserID(c *gin.Context) (uint, error) {
 
 var j *JWT
 
-func InitJWT() {
+func InitJWT() error {
 	JWTConfig := configs.GetJWTConfig()
 	expire, err := time.ParseDuration(JWTConfig.Expire)
 	if err != nil {
-		panic(fmt.Sprintf("expire(%v) parse error, Valid time units are 'ns', 'us' (or 'µs'), 'ms', 's', 'm', 'h'.", JWTConfig.Expire))
+		// panic(fmt.Sprintf("expire(%v) parse error, Valid time units are 'ns', 'us' (or 'µs'), 'ms', 's', 'm', 'h'.", JWTConfig.Expire))
+		return err
 	}
 	j = &JWT{
 		SigningKey: []byte(JWTConfig.SigningKey),
 		Expire:     expire,
 	}
+	return nil
 }
 func GetJWT() *JWT {
 	return j

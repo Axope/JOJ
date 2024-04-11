@@ -9,7 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.uber.org/zap"
 )
 
 var (
@@ -49,7 +48,7 @@ func InitMongo() error {
 	if err := client.Database("admin").RunCommand(context.TODO(), bson.D{{Key: "ping", Value: 1}}).Decode(&result); err != nil {
 		return fmt.Errorf("mongo ping error: %v", err)
 	}
-	log.Logger.Debug("", zap.Any("result", result))
+	log.Logger.Debug("", log.Any("result", result))
 
 	db := client.Database(database)
 	problemColl = db.Collection(problemCollName)
@@ -66,7 +65,7 @@ func InitMongo() error {
 	// 	if err = cursor.All(context.TODO(), &results); err != nil {
 	// 		panic(err)
 	// 	}
-	// 	log.Logger.Debug("", zap.Any("slice", results))
+	// 	log.Logger.Debug("", log.Any("slice", results))
 	// }
 
 	return nil

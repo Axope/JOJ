@@ -8,7 +8,6 @@ import (
 	"github.com/Axope/JOJ/internal/model"
 	"github.com/Axope/JOJ/internal/service"
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -29,7 +28,7 @@ func (u *userAPI) Register(c *gin.Context) {
 	var req request.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("ShouldBindJSON error", zap.Any("err", err))
+		log.Logger.Warn("ShouldBindJSON error", log.Any("err", err))
 		return
 	}
 
@@ -38,7 +37,7 @@ func (u *userAPI) Register(c *gin.Context) {
 	user, err := service.UserService.Register(&req)
 	if err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("register failed", zap.Any("err", err))
+		log.Logger.Warn("register failed", log.Any("err", err))
 		return
 	}
 
@@ -64,7 +63,7 @@ func (u *userAPI) Login(c *gin.Context) {
 	var req request.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("ShouldBindJSON error", zap.Any("err", err))
+		log.Logger.Warn("ShouldBindJSON error", log.Any("err", err))
 		return
 	}
 
@@ -73,14 +72,14 @@ func (u *userAPI) Login(c *gin.Context) {
 	user, err := service.UserService.Login(&req)
 	if err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("login failed", zap.Any("err", err))
+		log.Logger.Warn("login failed", log.Any("err", err))
 		return
 	}
 
 	token, err := createToken(user)
 	if err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("create token failed", zap.Any("err", err))
+		log.Logger.Warn("create token failed", log.Any("err", err))
 		return
 	}
 
@@ -104,14 +103,14 @@ func (u *userAPI) ChangePassword(c *gin.Context) {
 	var req request.ChangePasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("ShouldBindJSON error", zap.Any("err", err))
+		log.Logger.Warn("ShouldBindJSON error", log.Any("err", err))
 		return
 	}
 	var err error
 	req.ID, err = jwt.GetJWT().GetUserID(c)
 	if err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("GetUserID error", zap.Any("err", err))
+		log.Logger.Warn("GetUserID error", log.Any("err", err))
 		return
 	}
 
@@ -120,7 +119,7 @@ func (u *userAPI) ChangePassword(c *gin.Context) {
 	err = service.UserService.ChangePassword(&req)
 	if err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("change password failed", zap.Any("err", err))
+		log.Logger.Warn("change password failed", log.Any("err", err))
 		return
 	}
 

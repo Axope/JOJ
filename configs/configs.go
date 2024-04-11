@@ -7,10 +7,11 @@ import (
 )
 
 type Configs struct {
-	Log   LogConfig
-	Mysql MysqlConfig
-	JWT   JWTConfig
-	Mongo MongoConfig
+	Log      LogConfig
+	Mysql    MysqlConfig
+	JWT      JWTConfig
+	Mongo    MongoConfig
+	Rabbitmq RabbitmqConfig
 }
 
 var cfg Configs
@@ -40,4 +41,7 @@ func GetJWTConfig() JWTConfig {
 }
 func GetMongoConfig() MongoConfig {
 	return cfg.Mongo
+}
+func GetRBTConfig() RabbitmqConfig {
+	return cfg.Rabbitmq
 }

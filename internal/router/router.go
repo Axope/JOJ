@@ -5,7 +5,7 @@ import (
 
 	v1 "github.com/Axope/JOJ/api/v1"
 	_ "github.com/Axope/JOJ/docs"
-	"github.com/Axope/JOJ/internal/middleware"
+	mjwt "github.com/Axope/JOJ/internal/middleware/jwt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -40,11 +40,11 @@ func NewRouter() *gin.Engine {
 	}
 	publicSubmissionGroup := router.Group("/submission")
 	{
-		publicSubmissionGroup.GET("getSubmissionList", v1.Submission.GetSubmissionList)
+		publicSubmissionGroup.GET("getSubmissionList", v1.SubmissionAPI.GetSubmissionList)
 	}
 
 	privateUserGroup := router.Group("/user")
-	privateUserGroup.Use(middleware.JWTAuth(false))
+	privateUserGroup.Use(mjwt.JWTAuth(false))
 	{
 		privateUserGroup.POST("/changePassword", v1.UserAPI.ChangePassword)
 	}
@@ -55,6 +55,8 @@ func NewRouter() *gin.Engine {
 	// 	privateProblemGroup.PUT("/updateProblem", v1.ProblemAPI.UpdateProblem)
 	// 	privateProblemGroup.DELETE("/deleteProblem", v1.ProblemAPI.DeleteProblem)
 	// }
+
+	router.POST("/submit", mjwt.JWTAuth(false), v1.SubmitAPI.Submit)
 
 	return router
 }

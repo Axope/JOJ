@@ -29,7 +29,7 @@ const (
 	MLE StatusSet = "Memory Limit Exceeded"
 	RE  StatusSet = "Runtime Error"
 	OLE StatusSet = "Output Limit Exceeded"
-	UKE StatusSet = "Unknow Error"
+	UKE StatusSet = "Unknown Error"
 )
 
 type Submission struct {

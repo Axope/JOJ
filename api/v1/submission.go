@@ -8,13 +8,12 @@ import (
 	"github.com/Axope/JOJ/common/response"
 	"github.com/Axope/JOJ/internal/service"
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 )
 
 type submissionAPI struct {
 }
 
-var Submission = new(submissionAPI)
+var SubmissionAPI = new(submissionAPI)
 
 // GetSubmissionList
 //
@@ -28,7 +27,7 @@ func (s *submissionAPI) GetSubmissionList(c *gin.Context) {
 	var req request.GetSubmissionListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("ShouldBindQuery error", zap.Any("err", err))
+		log.Logger.Warn("ShouldBindQuery error", log.Any("err", err))
 		return
 	}
 
@@ -37,7 +36,7 @@ func (s *submissionAPI) GetSubmissionList(c *gin.Context) {
 	submissions, err := service.SubmissionService.GetSubmissionList(&req)
 	if err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("service: GetSubmissionList failed", zap.Any("err", err))
+		log.Logger.Warn("service: GetSubmissionList failed", log.Any("err", err))
 		return
 	}
 

@@ -12,8 +12,8 @@ type TestCase struct {
 type Problem struct {
 	PID         primitive.ObjectID `bson:"_id,omitempty"`
 	Title       string             `bson:"title"`
-	TimeLimit   int                `bson:"timeLimit"`
-	MemoryLimit int                `bson:"memoryLimit"`
+	TimeLimit   int64              `bson:"timeLimit"`
+	MemoryLimit int64              `bson:"memoryLimit"`
 	Description string             `bson:"description"`
 	TestSamples []TestCase         `bson:"testSamples"`
 

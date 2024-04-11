@@ -8,7 +8,6 @@ import (
 	"github.com/Axope/JOJ/common/response"
 	"github.com/Axope/JOJ/internal/service"
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 )
 
 type problemAPI struct {
@@ -28,7 +27,7 @@ func (u *problemAPI) GetProblemList(c *gin.Context) {
 	var req request.GetProblemListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("ShouldBindQuery error", zap.Any("err", err))
+		log.Logger.Warn("ShouldBindQuery error", log.Any("err", err))
 		return
 	}
 
@@ -37,7 +36,7 @@ func (u *problemAPI) GetProblemList(c *gin.Context) {
 	problems, err := service.ProblemService.GetProblemList(&req)
 	if err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("service: GetProblemList failed", zap.Any("err", err))
+		log.Logger.Warn("service: GetProblemList failed", log.Any("err", err))
 		return
 	}
 
@@ -59,7 +58,7 @@ func (u *problemAPI) GetProblem(c *gin.Context) {
 	var req request.GetProblemRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("ShouldBindQuery error", zap.Any("err", err))
+		log.Logger.Warn("ShouldBindQuery error", log.Any("err", err))
 		return
 	}
 
@@ -68,7 +67,7 @@ func (u *problemAPI) GetProblem(c *gin.Context) {
 	problem, err := service.ProblemService.GetProblem(&req)
 	if err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("service: GetProblem failed", zap.Any("err", err))
+		log.Logger.Warn("service: GetProblem failed", log.Any("err", err))
 		return
 	}
 
