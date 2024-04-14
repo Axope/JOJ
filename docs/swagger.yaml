@@ -141,6 +141,13 @@ definitions:
       msg:
         type: string
     type: object
+  response.CreateProblemResponse:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
   response.GetProblemListResponse:
     properties:
       problems:
@@ -191,6 +198,45 @@ paths:
   /index:
     get:
       responses: {}
+  /problem/createProblem:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - in: formData
+        name: description
+        type: string
+      - in: formData
+        name: memoryLimit
+        type: integer
+      - in: formData
+        name: testSamplesJson
+        type: string
+      - in: formData
+        name: timeLimit
+        type: integer
+      - in: formData
+        name: title
+        type: string
+      - description: 文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CreateProblemResponse'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Problem
   /problem/getProblem:
     get:
       parameters:

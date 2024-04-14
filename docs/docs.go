@@ -20,6 +20,75 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/problem/createProblem": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "Problem"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "memoryLimit",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "name": "testSamplesJson",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "timeLimit",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.CreateProblemResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/problem/getProblem": {
             "get": {
                 "tags": [
@@ -494,6 +563,17 @@ const docTemplate = `{
             "properties": {
                 "msg": {
                     "type": "string"
+                }
+            }
+        },
+        "response.CreateProblemResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
                 }
             }
         },
