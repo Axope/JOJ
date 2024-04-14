@@ -4,3 +4,4 @@ configs.yaml
 docker-compose.yaml
 
 deployments/docker/data/
+datas/

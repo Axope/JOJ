@@ -22,7 +22,7 @@ func (s *submissionService) GetSubmissionList(req *request.GetSubmissionListRequ
 		return nil, err
 	}
 	filter := bson.D{{Key: "uid", Value: req.UID}, {Key: "pid", Value: pid}}
-	log.Logger.Sugar().Debugf("uid = %v, pid = %v", req.UID, pid)
+	log.LoggerSugar.Debugf("uid = %v, pid = %v", req.UID, pid)
 	cursor, err := dao.GetSubmissionColl().Find(context.TODO(), filter)
 	if err != nil {
 		return nil, err

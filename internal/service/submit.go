@@ -6,9 +6,11 @@ import (
 
 	"github.com/Axope/JOJ/common/log"
 	"github.com/Axope/JOJ/common/request"
+	"github.com/Axope/JOJ/configs"
 	"github.com/Axope/JOJ/internal/dao"
 	"github.com/Axope/JOJ/internal/middleware/rabbitmq"
 	"github.com/Axope/JOJ/internal/model"
+	"github.com/Axope/JOJ/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -52,14 +54,15 @@ func (s *submitService) Submit(req *request.SubmitRequest) error {
 		return err
 	}
 
+	cfg := configs.GetDatasConfig()
 	judgeReq := request.JudgeRequest{
-		SID:         insertResult.InsertedID.(primitive.ObjectID).Hex(),
-		TimeLimit:   result.TimeLimit,
-		MemoryLimit: result.MemoryLimit,
-		TestSamples: result.TestCases,
-		TestCases:   result.TestCases,
-		Lang:        req.Lang,
-		SubmitCode:  req.SubmitCode,
+		SID:           insertResult.InsertedID.(primitive.ObjectID).Hex(),
+		PID:           result.PID.Hex(),
+		TimeLimit:     result.TimeLimit,
+		MemoryLimit:   result.MemoryLimit,
+		TestCases: utils.GetStringSlice(cfg.DirPath + pid.Hex() + "/" + cfg.TestCasesListFile),
+		Lang:          req.Lang,
+		SubmitCode:    req.SubmitCode,
 	}
 	msg, err := json.Marshal(judgeReq)
 	if err != nil {

@@ -31,7 +31,7 @@ func (s *submissionAPI) GetSubmissionList(c *gin.Context) {
 		return
 	}
 
-	log.LoggerSuger.Infof("GetSubmissionList:[%+v]", req)
+	log.LoggerSugar.Infof("GetSubmissionList:[%+v]", req)
 
 	submissions, err := service.SubmissionService.GetSubmissionList(&req)
 	if err != nil {
@@ -43,5 +43,5 @@ func (s *submissionAPI) GetSubmissionList(c *gin.Context) {
 	c.JSON(http.StatusOK, response.SuccessMsg(response.GetSubmissionListResponse{
 		Submissions: submissions,
 	}))
-	log.LoggerSuger.Info("service: GetSubmissionList:", submissions)
+	log.LoggerSugar.Info("service: GetSubmissionList:", submissions)
 }

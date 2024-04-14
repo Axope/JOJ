@@ -9,3 +9,13 @@ type GetProblemListResponse struct {
 type GetProblemResponse struct {
 	Problem model.Problem `json:"problem"`
 }
+
+type CreateProblemResponse struct {
+	Success bool   `json:"success"`
+	Msg     string `json:"message"`
+}
+
+type UploadDatasResponse struct {
+	Success bool   `json:"success"`
+	Msg     string `json:"message"`
+}

@@ -17,7 +17,7 @@ var (
 
 func InitMQ() error {
 	cfg := configs.GetRBTConfig()
-	log.Logger.Sugar().Debugf("cfg = %+v", cfg)
+	log.LoggerSugar.Debugf("cfg = %+v", cfg)
 	username := cfg.Username
 	password := cfg.Password
 	host := cfg.Host

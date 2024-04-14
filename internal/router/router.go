@@ -48,13 +48,13 @@ func NewRouter() *gin.Engine {
 	{
 		privateUserGroup.POST("/changePassword", v1.UserAPI.ChangePassword)
 	}
-	// privateProblemGroup := router.Group("/problem")
-	// privateProblemGroup.Use(middleware.JWTAuth(true))
-	// {
-	// 	privateProblemGroup.POST("/createProblem", v1.ProblemAPI.CreateProblem)
-	// 	privateProblemGroup.PUT("/updateProblem", v1.ProblemAPI.UpdateProblem)
-	// 	privateProblemGroup.DELETE("/deleteProblem", v1.ProblemAPI.DeleteProblem)
-	// }
+	privateProblemGroup := router.Group("/problem")
+	privateProblemGroup.Use(mjwt.JWTAuth(true))
+	{
+		privateProblemGroup.POST("/createProblem", v1.ProblemAPI.CreateProblem)
+		// privateProblemGroup.PUT("/updateProblem", v1.ProblemAPI.UpdateProblem)
+		// privateProblemGroup.DELETE("/deleteProblem", v1.ProblemAPI.DeleteProblem)
+	}
 
 	router.POST("/submit", mjwt.JWTAuth(false), v1.SubmitAPI.Submit)
 

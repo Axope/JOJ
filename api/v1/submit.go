@@ -40,7 +40,7 @@ func (s *submitAPI) Submit(c *gin.Context) {
 		return
 	}
 
-	log.LoggerSuger.Infof("Submit:[%+v]", req)
+	log.LoggerSugar.Infof("Submit:[%+v]", req)
 
 	err = service.SubmitService.Submit(&req)
 	if err != nil {

@@ -11,7 +11,7 @@ import (
 var Any = zap.Any
 
 var Logger *zap.Logger
-var LoggerSuger *zap.SugaredLogger
+var LoggerSugar *zap.SugaredLogger
 
 func InitLogger() {
 	LogConfig := configs.GetLogConfig()
@@ -68,6 +68,6 @@ func InitLogger() {
 	development := zap.Development()
 
 	Logger = zap.New(core, caller, development)
-	LoggerSuger = Logger.Sugar()
+	LoggerSugar = Logger.Sugar()
 	Logger.Info("Log module init success")
 }

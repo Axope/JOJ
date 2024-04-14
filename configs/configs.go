@@ -12,6 +12,7 @@ type Configs struct {
 	JWT      JWTConfig
 	Mongo    MongoConfig
 	Rabbitmq RabbitmqConfig
+	Datas    DatasConfig
 }
 
 var cfg Configs
@@ -44,4 +45,7 @@ func GetMongoConfig() MongoConfig {
 }
 func GetRBTConfig() RabbitmqConfig {
 	return cfg.Rabbitmq
+}
+func GetDatasConfig() DatasConfig {
+	return cfg.Datas
 }

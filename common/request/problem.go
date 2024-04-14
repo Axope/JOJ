@@ -1,10 +1,5 @@
 package request
 
-import "github.com/Axope/JOJ/internal/model"
-
-// "github.com/Axope/JOJ/internal/model"
-// "go.mongodb.org/mongo-driver/bson/primitive"
-
 type GetProblemListRequest struct {
 	StartIndex int64 `json:"startIndex" form:"startIndex" binging:"required,min=1"`
 	Length     int64 `json:"length" form:"length" binging:"required,min=1,max=100"`
@@ -15,7 +10,11 @@ type GetProblemRequest struct {
 }
 
 type CreateProblemRequest struct {
-	Problem model.Problem `json:"problem"`
+	Title           string `json:"title" form:"title"`
+	TimeLimit       int64  `json:"timeLimit" form:"timeLimit"`
+	MemoryLimit     int64  `json:"memoryLimit" form:"memoryLimit"`
+	Description     string `json:"description" form:"description"`
+	TestSamplesJson string `json:"testSamplesJson" form:"testSamplesJson"`
 }
 
 // type UpdateProblemRequest struct {

@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"net/http"
+
 	"github.com/Axope/JOJ/common/jwt"
 	"github.com/Axope/JOJ/common/log"
 	"github.com/Axope/JOJ/common/request"
@@ -8,7 +10,6 @@ import (
 	"github.com/Axope/JOJ/internal/model"
 	"github.com/Axope/JOJ/internal/service"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type userAPI struct {
@@ -32,7 +33,7 @@ func (u *userAPI) Register(c *gin.Context) {
 		return
 	}
 
-	log.LoggerSuger.Infof("register:[%v]", req)
+	log.LoggerSugar.Infof("register:[%v]", req)
 
 	user, err := service.UserService.Register(&req)
 	if err != nil {
@@ -44,11 +45,11 @@ func (u *userAPI) Register(c *gin.Context) {
 	c.JSON(http.StatusOK, response.SuccessMsg(response.RegisterResponse{
 		Username: user.Username,
 	}))
-	log.LoggerSuger.Infof("user(%v) registration success", user)
+	log.LoggerSugar.Infof("user(%v) registration success", user)
 }
 
 func createToken(user *model.User) (string, error) {
-	return jwt.GetJWT().CreateToken(*request.NewCustomClaims(user.UUID, user.ID, 0, jwt.GetJWT().Expire))
+	return jwt.GetJWT().CreateToken(*request.NewCustomClaims(user.UUID, user.ID, user.Admin, jwt.GetJWT().Expire))
 }
 
 // Login
@@ -67,7 +68,7 @@ func (u *userAPI) Login(c *gin.Context) {
 		return
 	}
 
-	log.LoggerSuger.Infof("login:[%v]", req)
+	log.LoggerSugar.Infof("login:[%v]", req)
 
 	user, err := service.UserService.Login(&req)
 	if err != nil {
@@ -87,7 +88,7 @@ func (u *userAPI) Login(c *gin.Context) {
 		Username: user.Username,
 		Token:    token,
 	}))
-	log.LoggerSuger.Infof("user(%v) login success", user)
+	log.LoggerSugar.Infof("user(%v) login success", user)
 }
 
 // ChangePassword
@@ -114,7 +115,7 @@ func (u *userAPI) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	log.LoggerSuger.Infof("change password:[%v]", req)
+	log.LoggerSugar.Infof("change password:[%v]", req)
 
 	err = service.UserService.ChangePassword(&req)
 	if err != nil {
@@ -126,5 +127,5 @@ func (u *userAPI) ChangePassword(c *gin.Context) {
 	c.JSON(http.StatusOK, response.SuccessMsg(response.ChangePasswordResponse{
 		Msg: "modify success",
 	}))
-	log.LoggerSuger.Infof("user(%v) change password success", req)
+	log.LoggerSugar.Infof("user(%v) change password success", req)
 }
