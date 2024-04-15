@@ -6,13 +6,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type LangSet string
+type LangSet int32
 
 const (
-	CPP    LangSet = "Cpp"
-	JAVA   LangSet = "Java"
-	PYTHON LangSet = "Python"
-	GO     LangSet = "Go"
+	CPP    LangSet = iota //"Cpp"
+	JAVA                  //"Java"
+	PYTHON                //"Python"
+	GO                    //"Go"
 )
 
 type StatusSet string

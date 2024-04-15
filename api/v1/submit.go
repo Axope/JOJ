@@ -45,7 +45,7 @@ func (s *submitAPI) Submit(c *gin.Context) {
 	err = service.SubmitService.Submit(&req)
 	if err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("change password failed", log.Any("err", err))
+		log.Logger.Warn("submit failed", log.Any("err", err))
 		return
 	}
 

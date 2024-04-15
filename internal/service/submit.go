@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/Axope/JOJ/common/log"
 	"github.com/Axope/JOJ/common/request"
@@ -10,10 +9,12 @@ import (
 	"github.com/Axope/JOJ/internal/dao"
 	"github.com/Axope/JOJ/internal/middleware/rabbitmq"
 	"github.com/Axope/JOJ/internal/model"
+	pb "github.com/Axope/JOJ/protocol"
 	"github.com/Axope/JOJ/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"google.golang.org/protobuf/proto"
 )
 
 type submitService struct {
@@ -55,20 +56,36 @@ func (s *submitService) Submit(req *request.SubmitRequest) error {
 	}
 
 	cfg := configs.GetDatasConfig()
-	judgeReq := request.JudgeRequest{
-		SID:           insertResult.InsertedID.(primitive.ObjectID).Hex(),
-		PID:           result.PID.Hex(),
-		TimeLimit:     result.TimeLimit,
-		MemoryLimit:   result.MemoryLimit,
-		TestCases: utils.GetStringSlice(cfg.DirPath + pid.Hex() + "/" + cfg.TestCasesListFile),
-		Lang:          req.Lang,
-		SubmitCode:    req.SubmitCode,
+	// judgeReq := request.JudgeRequest{
+	// 	SID:         insertResult.InsertedID.(primitive.ObjectID).Hex(),
+	// 	PID:         result.PID.Hex(),
+	// 	TimeLimit:   result.TimeLimit,
+	// 	MemoryLimit: result.MemoryLimit,
+	// 	TestCases:   utils.GetStringSlice(cfg.DirPath + pid.Hex() + "/" + cfg.TestCasesListFile),
+	// 	Lang:        req.Lang,
+	// 	SubmitCode:  req.SubmitCode,
+	// }
+	// msg, err := json.Marshal(judgeReq)
+	// if err != nil {
+	// 	return err
+	// }
+	// if err := rabbitmq.SendMsgByJson(msg); err != nil {
+	// 	return err
+	// }
+	judgeReq := &pb.Judge{
+		Sid:         insertResult.InsertedID.(primitive.ObjectID).Hex(),
+		Pid:         result.PID.Hex(),
+		TimeLimit:   result.TimeLimit,
+		MemoryLimit: result.MemoryLimit,
+		TestCases:   utils.GetStringSlice(cfg.DirPath + pid.Hex() + "/" + cfg.TestCasesListFile),
+		Lang:        pb.LangSet(req.Lang),
+		SubmitCode:  req.SubmitCode,
 	}
-	msg, err := json.Marshal(judgeReq)
+	msg, err := proto.Marshal(judgeReq)
 	if err != nil {
 		return err
 	}
-	if err := rabbitmq.SendMsgByJson(msg); err != nil {
+	if err := rabbitmq.SendMsgByProtobuf(msg); err != nil {
 		return err
 	}
 	log.Logger.Info("send judge request success", log.Any("judgeReq", judgeReq))

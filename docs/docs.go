@@ -366,13 +366,19 @@ const docTemplate = `{
     },
     "definitions": {
         "model.LangSet": {
-            "type": "string",
+            "type": "integer",
             "enum": [
-                "Cpp",
-                "Java",
-                "Python",
-                "Go"
+                0,
+                1,
+                2,
+                3
             ],
+            "x-enum-comments": {
+                "CPP": "\"Cpp\"",
+                "GO": "\"Go\"",
+                "JAVA": "\"Java\"",
+                "PYTHON": "\"Python\""
+            },
             "x-enum-varnames": [
                 "CPP",
                 "JAVA",

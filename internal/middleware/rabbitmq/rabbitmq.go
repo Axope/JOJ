@@ -62,3 +62,20 @@ func SendMsgByJson(msg []byte) error {
 	}
 	return nil
 }
+
+func SendMsgByProtobuf(msg []byte) error {
+	if err := ch.PublishWithContext(
+		context.TODO(),
+		"",
+		queue.Name,
+		false,
+		false,
+		amqp.Publishing{
+			DeliveryMode: amqp.Persistent,
+			ContentType:  "application/x-protobuf",
+			Body:         msg,
+		}); err != nil {
+		return err
+	}
+	return nil
+}

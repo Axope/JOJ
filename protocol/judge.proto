@@ -1,0 +1,21 @@
+syntax = "proto3";
+package protocol;
+
+option go_package = "./protocol";
+
+enum LangSet {
+    CPP = 0;
+    JAVA = 1;
+    PYTHON = 2;
+    GO = 3;
+}
+
+message Judge {
+    string sid = 1;
+    string pid = 2;
+    int64 timeLimit = 3;
+    int64 memoryLimit = 4;
+    repeated string testCases = 5;
+    LangSet lang = 6;
+    string submitCode = 7;
+}
