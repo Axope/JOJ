@@ -6,6 +6,7 @@ import (
 
 	"github.com/Axope/JOJ/common/log"
 	"github.com/Axope/JOJ/common/request"
+	"github.com/Axope/JOJ/common/response"
 	"github.com/Axope/JOJ/internal/dao"
 	"github.com/Axope/JOJ/internal/model"
 	"github.com/Axope/JOJ/utils"
@@ -19,15 +20,15 @@ type problemService struct {
 
 var ProblemService = new(problemService)
 
-func (p *problemService) GetProblemList(req *request.GetProblemListRequest) ([]model.Problem, error) {
+func (p *problemService) GetProblemList(req *request.GetProblemListRequest) ([]response.SimpleProblem, error) {
 	findOptions := options.Find().SetLimit(req.Length).SetSkip(req.StartIndex - 1)
-	findOptions.SetProjection(bson.D{{Key: "testCases", Value: 0}})
+	findOptions.SetProjection(bson.D{{Key: "_id", Value: 1}, {Key: "title", Value: 1}})
 
 	cursor, err := dao.GetProblemColl().Find(context.TODO(), bson.D{{}}, findOptions)
 	if err != nil {
 		return nil, err
 	} else {
-		var results []model.Problem
+		var results []response.SimpleProblem
 		if err = cursor.All(context.TODO(), &results); err != nil {
 			return nil, err
 		}

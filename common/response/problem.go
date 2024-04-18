@@ -2,8 +2,12 @@ package response
 
 import "github.com/Axope/JOJ/internal/model"
 
+type SimpleProblem struct {
+	PID   string `json:"pid" bson:"_id"`
+	Title string `json:"title"`
+}
 type GetProblemListResponse struct {
-	Problems []model.Problem `json:"problems"`
+	Problems []SimpleProblem `json:"problems"`
 }
 
 type GetProblemResponse struct {
