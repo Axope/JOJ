@@ -89,40 +89,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/problem/getProblem": {
-            "get": {
-                "tags": [
-                    "Problem"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "name": "pid",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/response.GetProblemResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/problem/getProblemList": {
             "get": {
                 "tags": [
@@ -153,6 +119,42 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/response.GetProblemListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/problem/{pid}": {
+            "get": {
+                "tags": [
+                    "Problem"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "problem ID",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.GetProblemResponse"
                                         }
                                     }
                                 }
@@ -256,13 +258,14 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "用户名, 密码, 新密码",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.ChangePasswordRequest"
-                        }
+                        "type": "string",
+                        "name": "newPassword",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "name": "password",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -294,13 +297,14 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "用户名, 密码",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.LoginRequest"
-                        }
+                        "type": "string",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "name": "username",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -332,13 +336,14 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "用户名, 密码",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.RegisterRequest"
-                        }
+                        "type": "string",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "name": "username",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -510,48 +515,11 @@ const docTemplate = `{
                 }
             }
         },
-        "request.ChangePasswordRequest": {
-            "type": "object",
-            "properties": {
-                "newPassword": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "request.LoginRequest": {
-            "type": "object",
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "example": "密码"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "用户名"
-                }
-            }
-        },
-        "request.RegisterRequest": {
-            "type": "object",
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "example": "密码"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "用户名"
-                }
-            }
-        },
         "request.SubmitRequest": {
             "type": "object",
             "properties": {
                 "lang": {
-                    "$ref": "#/definitions/model.LangSet"
+                    "type": "integer"
                 },
                 "pid": {
                     "type": "string"
@@ -589,7 +557,7 @@ const docTemplate = `{
                 "problems": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.Problem"
+                        "$ref": "#/definitions/response.SimpleProblem"
                     }
                 }
             }
@@ -616,8 +584,14 @@ const docTemplate = `{
         "response.LoginResponse": {
             "type": "object",
             "properties": {
+                "admin": {
+                    "type": "integer"
+                },
                 "token": {
                     "type": "string"
+                },
+                "uid": {
+                    "type": "integer"
                 },
                 "username": {
                     "type": "string"
@@ -640,6 +614,17 @@ const docTemplate = `{
                 },
                 "data": {},
                 "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.SimpleProblem": {
+            "type": "object",
+            "properties": {
+                "pid": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 }
             }

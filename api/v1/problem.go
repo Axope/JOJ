@@ -51,22 +51,22 @@ func (u *problemAPI) GetProblemList(c *gin.Context) {
 // GetProblem
 //
 //	@Tags		Problem
-//	@Param		data	query		request.GetProblemRequest	true	"problem ID"
-//	@Success	200		{object}	response.Response{data=response.GetProblemResponse}
-//	@Router		/problem/getProblem [get]
+//	@Param		pid	path		string	true	"problem ID"
+//	@Success	200	{object}	response.Response{data=response.GetProblemResponse}
+//	@Router		/problem/{pid} [get]
 func (u *problemAPI) GetProblem(c *gin.Context) {
 	defer log.Logger.Sync()
 
-	var req request.GetProblemRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("ShouldBindQuery error", log.Any("err", err))
+	pid := c.Param("pid")
+	if pid == "" {
+		c.JSON(http.StatusOK, response.FailMsg("pid empty"))
+		log.Logger.Warn("pid empty")
 		return
 	}
 
-	log.LoggerSugar.Infof("GetProblem:[%+v]", req)
+	log.LoggerSugar.Infof("GetProblem:[pid: %+v]", pid)
 
-	problem, err := service.ProblemService.GetProblem(&req)
+	problem, err := service.ProblemService.GetProblem(pid)
 	if err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
 		log.Logger.Warn("service: GetProblem failed", log.Any("err", err))
@@ -94,7 +94,7 @@ func (u *problemAPI) CreateProblem(c *gin.Context) {
 	var req request.CreateProblemRequest
 	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("ShouldBindJSON error", log.Any("err", err))
+		log.Logger.Warn("ShouldBind error", log.Any("err", err))
 		return
 	}
 	log.LoggerSugar.Infof("CreateProblem req:[%+v]", req)

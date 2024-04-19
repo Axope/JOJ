@@ -23,7 +23,12 @@ func GetIndex(c *gin.Context) {
 
 func NewRouter() *gin.Engine {
 	router := gin.Default()
-	router.Use(cors.Default())
+	// router.Use(cors.Default())
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AddAllowHeaders("Authorization")
+	corsMiddleware := cors.New(config)
+	router.Use(corsMiddleware)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	router.GET("/index", GetIndex)
@@ -36,7 +41,8 @@ func NewRouter() *gin.Engine {
 	publicProblemGroup := router.Group("/problem")
 	{
 		publicProblemGroup.GET("getProblemList", v1.ProblemAPI.GetProblemList)
-		publicProblemGroup.GET("getProblem", v1.ProblemAPI.GetProblem)
+		// publicProblemGroup.GET("getProblem", v1.ProblemAPI.GetProblem)
+		publicProblemGroup.GET("/:pid", v1.ProblemAPI.GetProblem)
 	}
 	publicSubmissionGroup := router.Group("/submission")
 	{

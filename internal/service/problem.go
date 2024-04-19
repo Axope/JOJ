@@ -36,8 +36,8 @@ func (p *problemService) GetProblemList(req *request.GetProblemListRequest) ([]r
 	}
 }
 
-func (p *problemService) GetProblem(req *request.GetProblemRequest) (*model.Problem, error) {
-	pid, err := primitive.ObjectIDFromHex(req.PID)
+func (p *problemService) GetProblem(pidS string) (*model.Problem, error) {
+	pid, err := primitive.ObjectIDFromHex(pidS)
 	if err != nil {
 		return nil, err
 	}

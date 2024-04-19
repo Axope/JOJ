@@ -33,16 +33,16 @@ const (
 )
 
 type Submission struct {
-	SID           primitive.ObjectID `bson:"_id,omitempty"`
-	UID           uint               `bson:"uid"`
-	PID           primitive.ObjectID `bson:"pid"`
-	SubmitTime    time.Time          `bson:"submitTime"`
-	Lang          LangSet            `bson:"lang"`
-	Status        StatusSet          `bson:"status"`
-	RunningTime   int                `bson:"runningTime"`
-	RunningMemory int                `bson:"runningMemory"`
-	SubmitCode    string             `bson:"submitCode"`
+	SID           primitive.ObjectID `bson:"_id,omitempty" json:"sid"`
+	UID           uint               `bson:"uid" json:"uid"`
+	PID           primitive.ObjectID `bson:"pid" json:"pid"`
+	SubmitTime    time.Time          `bson:"submitTime" json:"submitTime"`
+	Lang          LangSet            `bson:"lang" json:"lang"`
+	Status        StatusSet          `bson:"status" json:"status"`
+	RunningTime   int                `bson:"runningTime" json:"runningTime"`
+	RunningMemory int                `bson:"runningMemory" json:"runningMemory"`
+	SubmitCode    string             `bson:"submitCode" json:"submitCode"`
 
 	// options
-	Point int `bson:"point,omitempty"`
+	Point int `bson:"point,omitempty" json:"point,omitempty"`
 }

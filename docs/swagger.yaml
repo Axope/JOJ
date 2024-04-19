@@ -105,35 +105,10 @@ definitions:
       output:
         type: string
     type: object
-  request.ChangePasswordRequest:
-    properties:
-      newPassword:
-        type: string
-      password:
-        type: string
-    type: object
-  request.LoginRequest:
-    properties:
-      password:
-        example: 密码
-        type: string
-      username:
-        example: 用户名
-        type: string
-    type: object
-  request.RegisterRequest:
-    properties:
-      password:
-        example: 密码
-        type: string
-      username:
-        example: 用户名
-        type: string
-    type: object
   request.SubmitRequest:
     properties:
       lang:
-        $ref: '#/definitions/model.LangSet'
+        type: integer
       pid:
         type: string
       submitCode:
@@ -157,7 +132,7 @@ definitions:
     properties:
       problems:
         items:
-          $ref: '#/definitions/model.Problem'
+          $ref: '#/definitions/response.SimpleProblem'
         type: array
     type: object
   response.GetProblemResponse:
@@ -174,8 +149,12 @@ definitions:
     type: object
   response.LoginResponse:
     properties:
+      admin:
+        type: integer
       token:
         type: string
+      uid:
+        type: integer
       username:
         type: string
     type: object
@@ -192,6 +171,13 @@ definitions:
       msg:
         type: string
     type: object
+  response.SimpleProblem:
+    properties:
+      pid:
+        type: string
+      title:
+        type: string
+    type: object
   response.SubmitResponse:
     properties:
       msg:
@@ -203,6 +189,26 @@ paths:
   /index:
     get:
       responses: {}
+  /problem/{pid}:
+    get:
+      parameters:
+      - description: problem ID
+        in: path
+        name: pid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GetProblemResponse'
+              type: object
+      tags:
+      - Problem
   /problem/createProblem:
     post:
       consumes:
@@ -240,24 +246,6 @@ paths:
               type: object
       security:
       - ApiKeyAuth: []
-      tags:
-      - Problem
-  /problem/getProblem:
-    get:
-      parameters:
-      - in: query
-        name: pid
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/response.GetProblemResponse'
-              type: object
       tags:
       - Problem
   /problem/getProblemList:
@@ -328,12 +316,12 @@ paths:
   /user/changePassword:
     post:
       parameters:
-      - description: 用户名, 密码, 新密码
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.ChangePasswordRequest'
+      - in: formData
+        name: newPassword
+        type: string
+      - in: formData
+        name: password
+        type: string
       responses:
         "200":
           description: OK
@@ -351,12 +339,12 @@ paths:
   /user/login:
     post:
       parameters:
-      - description: 用户名, 密码
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.LoginRequest'
+      - in: formData
+        name: password
+        type: string
+      - in: formData
+        name: username
+        type: string
       responses:
         "200":
           description: OK
@@ -372,12 +360,12 @@ paths:
   /user/register:
     post:
       parameters:
-      - description: 用户名, 密码
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.RegisterRequest'
+      - in: formData
+        name: password
+        type: string
+      - in: formData
+        name: username
+        type: string
       responses:
         "200":
           description: OK

@@ -20,16 +20,16 @@ var UserAPI = new(userAPI)
 // Register
 //
 //	@Tags		User
-//	@Param		data	body		request.RegisterRequest	true	"用户名, 密码"
+//	@Param		data	formData	request.RegisterRequest	true	"用户名, 密码"
 //	@Success	200		{object}	response.Response{data=response.RegisterResponse}
 //	@Router		/user/register [post]
 func (u *userAPI) Register(c *gin.Context) {
 	defer log.Logger.Sync()
 
 	var req request.RegisterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("ShouldBindJSON error", log.Any("err", err))
+		log.Logger.Warn("ShouldBind error", log.Any("err", err))
 		return
 	}
 
@@ -55,16 +55,16 @@ func createToken(user *model.User) (string, error) {
 // Login
 //
 //	@Tags		User
-//	@Param		data	body		request.LoginRequest	true	"用户名, 密码"
+//	@Param		data	formData	request.LoginRequest	true	"用户名, 密码"
 //	@Success	200		{object}	response.Response{data=response.LoginResponse}
 //	@Router		/user/login [post]
 func (u *userAPI) Login(c *gin.Context) {
 	defer log.Logger.Sync()
 
 	var req request.LoginRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("ShouldBindJSON error", log.Any("err", err))
+		log.Logger.Warn("ShouldBind error", log.Any("err", err))
 		return
 	}
 
@@ -85,6 +85,7 @@ func (u *userAPI) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response.SuccessMsg(response.LoginResponse{
+		UID:      user.ID,
 		Username: user.Username,
 		Token:    token,
 	}))
@@ -94,7 +95,7 @@ func (u *userAPI) Login(c *gin.Context) {
 // ChangePassword
 //
 //	@Tags		User
-//	@Param		data	body		request.ChangePasswordRequest	true	"用户名, 密码, 新密码"
+//	@Param		data	formData	request.ChangePasswordRequest	true	"用户名, 密码, 新密码"
 //	@Success	200		{object}	response.Response{data=response.ChangePasswordResponse}
 //	@Router		/user/changePassword [post]
 //	@Security	ApiKeyAuth
@@ -102,9 +103,9 @@ func (u *userAPI) ChangePassword(c *gin.Context) {
 	defer log.Logger.Sync()
 
 	var req request.ChangePasswordRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
-		log.Logger.Warn("ShouldBindJSON error", log.Any("err", err))
+		log.Logger.Warn("ShouldBind error", log.Any("err", err))
 		return
 	}
 	var err error

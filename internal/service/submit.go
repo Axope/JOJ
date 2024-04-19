@@ -46,7 +46,7 @@ func (s *submitService) Submit(req *request.SubmitRequest) error {
 		UID:        req.UID,
 		PID:        result.PID,
 		SubmitTime: req.SubmitTime,
-		Lang:       req.Lang,
+		Lang:       model.LangSet(req.Lang),
 		Status:     model.PENDING,
 		SubmitCode: req.SubmitCode,
 	}

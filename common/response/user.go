@@ -5,7 +5,9 @@ type RegisterResponse struct {
 }
 
 type LoginResponse struct {
+	UID      uint   `json:"uid"`
 	Username string `json:"username"`
+	Admin    int    `json:"admin"`
 	Token    string `json:"token"`
 }
 
