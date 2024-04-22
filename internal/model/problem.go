@@ -3,10 +3,10 @@ package model
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type TestCase struct {
-	Input       string `bson:"input" json:"input"`
-	Output      string `bson:"output" json:"output"`
-	Note        string `bson:"note,omitempty" json:"note,omitempty"`
-	Explanation string `bson:"explanation,omitempty" json:"explanation,omitempty"`
+	Input       string `bson:"input" json:"input" form:"input"`
+	Output      string `bson:"output" json:"output" form:"output"`
+	Note        string `bson:"note,omitempty" json:"note,omitempty" form:"note,omitempty"`
+	Explanation string `bson:"explanation,omitempty" json:"explanation,omitempty" form:"explanation,omitempty"`
 }
 
 type Problem struct {

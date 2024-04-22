@@ -15,6 +15,7 @@ type CreateProblemRequest struct {
 	MemoryLimit     int64  `json:"memoryLimit" form:"memoryLimit"`
 	Description     string `json:"description" form:"description"`
 	TestSamplesJson string `json:"testSamplesJson" form:"testSamplesJson"`
+	// TestSamples []model.TestCase `json:"testSamples" form:"testSamples"`
 }
 
 // type UpdateProblemRequest struct {

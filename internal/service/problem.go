@@ -63,6 +63,7 @@ func (p *problemService) CreateProblem(req *request.CreateProblemRequest, pid pr
 
 	var testSamples []model.TestCase
 	if err := json.Unmarshal([]byte(req.TestSamplesJson), &testSamples); err != nil {
+		log.Logger.Error("Unmarshal error", log.Any("json", req.TestSamplesJson))
 		return err
 	}
 
