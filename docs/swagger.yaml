@@ -1,4 +1,42 @@
 definitions:
+  contest.Contest:
+    properties:
+      cid:
+        type: string
+      duration:
+        $ref: '#/definitions/time.Duration'
+      note:
+        type: string
+      problems:
+        items:
+          $ref: '#/definitions/contest.ContestProblem'
+        type: array
+      startTime:
+        type: string
+      status:
+        $ref: '#/definitions/contest.ContestStatus'
+      title:
+        type: string
+    type: object
+  contest.ContestProblem:
+    properties:
+      nick:
+        type: string
+      pid:
+        type: string
+      title:
+        type: string
+    type: object
+  contest.ContestStatus:
+    enum:
+    - Register
+    - Running
+    - Close
+    type: string
+    x-enum-varnames:
+    - REGISTER
+    - RUNNING
+    - CLOSE
   model.LangSet:
     enum:
     - 0
@@ -46,6 +84,7 @@ definitions:
     type: object
   model.StatusSet:
     enum:
+    - UnSubmit
     - Pending
     - Compiling
     - Judging
@@ -59,6 +98,7 @@ definitions:
     - Unknown Error
     type: string
     x-enum-varnames:
+    - UNSUBMIT
     - PENDING
     - COMPILING
     - JUDGING
@@ -121,12 +161,31 @@ definitions:
       msg:
         type: string
     type: object
+  response.CreateContestResponse:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
   response.CreateProblemResponse:
     properties:
       message:
         type: string
       success:
         type: boolean
+    type: object
+  response.GetContestListResponse:
+    properties:
+      contests:
+        items:
+          $ref: '#/definitions/response.SimpleContest'
+        type: array
+    type: object
+  response.GetContestResponse:
+    properties:
+      contest:
+        $ref: '#/definitions/contest.Contest'
     type: object
   response.GetProblemListResponse:
     properties:
@@ -171,6 +230,22 @@ definitions:
       msg:
         type: string
     type: object
+  response.SimpleContest:
+    properties:
+      cid:
+        type: string
+      duration:
+        $ref: '#/definitions/time.Duration'
+      note:
+        description: options
+        type: string
+      startTime:
+        type: string
+      status:
+        $ref: '#/definitions/contest.ContestStatus'
+      title:
+        type: string
+    type: object
   response.SimpleProblem:
     properties:
       pid:
@@ -183,9 +258,122 @@ definitions:
       msg:
         type: string
     type: object
+  time.Duration:
+    enum:
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    type: integer
+    x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
 info:
   contact: {}
 paths:
+  /contest/{cid}:
+    get:
+      parameters:
+      - description: contest ID
+        in: path
+        name: cid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GetContestResponse'
+              type: object
+      tags:
+      - Contest
+  /contest/createContest:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - enum:
+        - -9223372036854775808
+        - 9223372036854775807
+        - 1
+        - 1000
+        - 1000000
+        - 1000000000
+        - 60000000000
+        - 3600000000000
+        in: formData
+        name: duration
+        type: integer
+        x-enum-varnames:
+        - minDuration
+        - maxDuration
+        - Nanosecond
+        - Microsecond
+        - Millisecond
+        - Second
+        - Minute
+        - Hour
+      - in: formData
+        name: note
+        type: string
+      - in: formData
+        name: rule
+        type: string
+      - in: formData
+        name: startTime
+        type: string
+      - in: formData
+        name: title
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CreateContestResponse'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Contest
+  /contest/getContestList:
+    get:
+      parameters:
+      - in: query
+        name: length
+        type: integer
+      - in: query
+        name: startIndex
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GetContestListResponse'
+              type: object
+      tags:
+      - Contest
   /index:
     get:
       responses: {}

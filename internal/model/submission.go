@@ -18,6 +18,7 @@ const (
 type StatusSet string
 
 const (
+	UNSUBMIT  StatusSet = "UnSubmit"
 	PENDING   StatusSet = "Pending"
 	COMPILING StatusSet = "Compiling"
 	JUDGING   StatusSet = "Judging"

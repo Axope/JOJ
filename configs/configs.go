@@ -13,6 +13,7 @@ type Configs struct {
 	Mongo    MongoConfig
 	Rabbitmq RabbitmqConfig
 	Datas    DatasConfig
+	Redis    RedisConfig
 }
 
 var cfg Configs
@@ -48,4 +49,7 @@ func GetRBTConfig() RabbitmqConfig {
 }
 func GetDatasConfig() DatasConfig {
 	return cfg.Datas
+}
+func GetRedisConfig() RedisConfig {
+	return cfg.Redis
 }

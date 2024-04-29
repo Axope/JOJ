@@ -48,6 +48,11 @@ func NewRouter() *gin.Engine {
 	{
 		publicSubmissionGroup.GET("getSubmissionList", v1.SubmissionAPI.GetSubmissionList)
 	}
+	publicContestGroup := router.Group("/contest")
+	{
+		publicContestGroup.GET("getContestList", v1.ContestAPI.GetContestList)
+		publicContestGroup.GET("/:cid", v1.ContestAPI.GetContest)
+	}
 
 	privateUserGroup := router.Group("/user")
 	privateUserGroup.Use(mjwt.JWTAuth(false))
@@ -60,6 +65,11 @@ func NewRouter() *gin.Engine {
 		privateProblemGroup.POST("/createProblem", v1.ProblemAPI.CreateProblem)
 		// privateProblemGroup.PUT("/updateProblem", v1.ProblemAPI.UpdateProblem)
 		// privateProblemGroup.DELETE("/deleteProblem", v1.ProblemAPI.DeleteProblem)
+	}
+	privateContestGroup := router.Group("/contest")
+	privateContestGroup.Use(mjwt.JWTAuth(true))
+	{
+		privateContestGroup.POST("/createContest", v1.ContestAPI.CreateContest)
 	}
 
 	router.POST("/submit", mjwt.JWTAuth(false), v1.SubmitAPI.Submit)

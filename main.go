@@ -5,6 +5,7 @@ import (
 
 	"github.com/Axope/JOJ/internal/dao"
 	"github.com/Axope/JOJ/internal/middleware/rabbitmq"
+	"github.com/Axope/JOJ/internal/middleware/redis"
 	"github.com/Axope/JOJ/internal/router"
 
 	"github.com/Axope/JOJ/common/jwt"
@@ -49,6 +50,13 @@ func main() {
 		return
 	} else {
 		log.Logger.Info("jwt init success")
+	}
+	// redis
+	if err := redis.InitRedis(); err != nil {
+		log.Logger.Error("redis init failed", log.Any("err", err))
+		return
+	} else {
+		log.Logger.Info("redis init success")
 	}
 
 	router := router.NewRouter()

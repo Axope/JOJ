@@ -12,9 +12,10 @@ import (
 )
 
 var (
-	client      *mongo.Client
-	problemColl *mongo.Collection
-	submissionColl  *mongo.Collection
+	client         *mongo.Client
+	problemColl    *mongo.Collection
+	submissionColl *mongo.Collection
+	contestColl    *mongo.Collection
 )
 
 func InitMongo() error {
@@ -26,8 +27,9 @@ func InitMongo() error {
 	database := cfg.Database
 	problemCollName := cfg.ProblemColl
 	submissionCollName := cfg.SubmissionColl
-	log.Logger.Sugar().Debugf("database %v, problemCollName %v, submissionCollName %v",
-		database, problemCollName, submissionCollName)
+	contestCollName := cfg.ContestColl
+	log.Logger.Sugar().Debugf("database %v, problemCollName %v, submissionCollName %v, contestCollName %v",
+		database, problemCollName, submissionCollName, contestCollName)
 
 	uri := fmt.Sprintf("mongodb://%s:%s@%s:%d/", username, password, host, port)
 	log.Logger.Debug(uri)
@@ -53,6 +55,7 @@ func InitMongo() error {
 	db := client.Database(database)
 	problemColl = db.Collection(problemCollName)
 	submissionColl = db.Collection(submissionCollName)
+	contestColl = db.Collection(contestCollName)
 
 	// {
 	// 	// debug
@@ -79,4 +82,7 @@ func GetProblemColl() *mongo.Collection {
 }
 func GetSubmissionColl() *mongo.Collection {
 	return submissionColl
+}
+func GetContestColl() *mongo.Collection {
+	return contestColl
 }

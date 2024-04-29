@@ -8,4 +8,5 @@ type MongoConfig struct {
 	Database       string `yaml:"database"`
 	ProblemColl    string `yaml:"problemColl"`
 	SubmissionColl string `yaml:"submissionColl"`
+	ContestColl    string `yaml:"contestColl"`
 }
