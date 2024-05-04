@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	pb "github.com/Axope/JOJ/protocol"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -19,6 +20,7 @@ type StatusSet string
 
 const (
 	UNSUBMIT  StatusSet = "UnSubmit"
+	UNACCEPT  StatusSet = "UnAccept"
 	PENDING   StatusSet = "Pending"
 	COMPILING StatusSet = "Compiling"
 	JUDGING   StatusSet = "Judging"
@@ -37,6 +39,7 @@ type Submission struct {
 	SID           primitive.ObjectID `bson:"_id,omitempty" json:"sid"`
 	UID           uint               `bson:"uid" json:"uid"`
 	PID           primitive.ObjectID `bson:"pid" json:"pid"`
+	CID           primitive.ObjectID `bson:"cid,omitempty" json:"cid,omitempty"`
 	SubmitTime    time.Time          `bson:"submitTime" json:"submitTime"`
 	Lang          LangSet            `bson:"lang" json:"lang"`
 	Status        StatusSet          `bson:"status" json:"status"`
@@ -46,4 +49,26 @@ type Submission struct {
 
 	// options
 	Point int `bson:"point,omitempty" json:"point,omitempty"`
+}
+
+func GetStatusSet(status pb.StatusSet) StatusSet {
+	switch status {
+	case pb.StatusSet_CE:
+		return CE
+	case pb.StatusSet_AC:
+		return AC
+	case pb.StatusSet_WA:
+		return WA
+	case pb.StatusSet_TLE:
+		return TLE
+	case pb.StatusSet_MLE:
+		return MLE
+	case pb.StatusSet_RE:
+		return RE
+	case pb.StatusSet_OLE:
+		return OLE
+	case pb.StatusSet_UKE:
+		return UKE
+	}
+	return UKE
 }

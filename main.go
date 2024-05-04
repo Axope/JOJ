@@ -7,6 +7,7 @@ import (
 	"github.com/Axope/JOJ/internal/middleware/rabbitmq"
 	"github.com/Axope/JOJ/internal/middleware/redis"
 	"github.com/Axope/JOJ/internal/router"
+	"github.com/Axope/JOJ/internal/service"
 
 	"github.com/Axope/JOJ/common/jwt"
 	"github.com/Axope/JOJ/common/log"
@@ -38,11 +39,13 @@ func main() {
 		log.Logger.Info("mongoDB init success")
 	}
 	// rabbitMQ
-	if err := rabbitmq.InitMQ(); err != nil {
+	recvMsgs, err := rabbitmq.InitMQ()
+	if err != nil {
 		log.Logger.Error("RabbitMQ init failed", log.Any("err", err))
 		return
 	} else {
 		log.Logger.Info("RabbitMQ init success")
+		go service.SubmitService.HandleSubmitResult(recvMsgs)
 	}
 	// jwt
 	if err := jwt.InitJWT(); err != nil {

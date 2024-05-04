@@ -13,9 +13,12 @@ enum LangSet {
 message Judge {
     string sid = 1;
     string pid = 2;
-    int64 timeLimit = 3;
-    int64 memoryLimit = 4;
-    repeated string testCases = 5;
-    LangSet lang = 6;
-    string submitCode = 7;
+    string uid = 3;
+    string cid = 4;
+    int64 timeLimit = 5;
+    int64 memoryLimit = 6;
+    repeated string testCases = 7;
+    LangSet lang = 8;
+    string submitCode = 9;
+    int64 submitTimestamp = 10;
 }

@@ -1,0 +1,24 @@
+syntax = "proto3";
+package protocol;
+
+option go_package = "./protocol";
+
+enum StatusSet {
+    CE = 0;
+    AC = 1;
+    WA = 2;
+    TLE = 3;
+    MLE = 4;
+    RE = 5;
+    OLE = 6;
+    UKE = 7;
+}
+
+message JudgeResult {
+    string sid = 1;
+    string pid = 2;
+    string uid = 3;
+    string cid = 4;
+    StatusSet status = 5;
+    int64 submitTimestamp = 6;
+}

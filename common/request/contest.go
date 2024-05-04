@@ -2,8 +2,6 @@ package request
 
 import (
 	"time"
-
-	"github.com/Axope/JOJ/internal/model/contest"
 )
 
 type GetContestListRequest struct {
@@ -16,10 +14,30 @@ type GetContestRequest struct {
 }
 
 type CreateContestRequest struct {
-	Title     string                   `json:"title" form:"title"`
-	Problems  []contest.ContestProblem `json:"problems" form:"problems"`
-	StartTime time.Time                `json:"startTime" form:"startTime"`
-	Duration  time.Duration            `json:"duration" form:"duration"`
-	Note      string                   `json:"note" form:"note"`
-	Rule      string                   `json:"rule" form:"rule"`
+	Title        string    `json:"title" form:"title"`
+	ProblemsJson string    `json:"problemsJson" form:"problemsJson"`
+	StartTime    time.Time `json:"startTime" form:"startTime"`
+	Duration     int64     `json:"duration" form:"duration"`
+	Note         string    `json:"note" form:"note"`
+	Rule         string    `json:"rule" form:"rule"`
+}
+
+type RegisterContestRequest struct {
+	CID string `json:"cid"`
+	UID uint   `json:"-"`
+}
+
+type UnregisterContestRequest struct {
+	CID string `json:"cid"`
+	UID uint   `json:"-"`
+}
+
+type GetStandingsByRankRequest struct {
+	Cid      string `json:"cid" form:"cid"`
+	StartIdx int64  `json:"startIdx" form:"startIdx"`
+	Len      int64  `json:"len" form:"len"`
+}
+
+type GetContestSubmissionListRequest struct {
+	CID string `json:"cid" form:"cid"`
 }

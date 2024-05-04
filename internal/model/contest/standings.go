@@ -14,7 +14,7 @@ type Standings interface {
 	Unregister(uid uint) error
 	Accept(uid uint, i int, submitTime, StartTime time.Time) error
 	Fail(uid uint, i int) error
-	GetStandingsByRank(startIdx int64, len int64) ([][]ProblemSolveStatus, error)
+	GetStandingsByRank(startIdx int64, len int64) ([]RankListData, error)
 	Close() error
 }
 

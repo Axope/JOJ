@@ -14,11 +14,11 @@ function random_pid() {
     echo "${PIDS[idx]}"
 }
 
-function random_lang() {
-    local LANGS=("Cpp" "Java" "Python" "Go")
-    local idx=$((RANDOM % ${#LANGS[@]}))
-    echo "${LANGS[idx]}"
-}
+# function random_lang() {
+#     local LANGS=("Cpp" "Java" "Python" "Go")
+#     local idx=$((RANDOM % ${#LANGS[@]}))
+#     echo "${LANGS[idx]}"
+# }
 
 function random_status() {
     local STATUSES=("Pending" "Compiling" "Judging" "Compile Error" "Accept" "Wrong Answer" "Time Limit Exceeded" "Memory Limit Exceeded" "Runtime Error" "Output Limit Exceeded" "Unknown Error")
@@ -38,7 +38,7 @@ do
   "uid": $((RANDOM % 1000 + 1)),
   "pid": { "\$oid" : "$(random_pid)" },
   "submitTime": "$(date -Ins)",
-  "lang": "$(random_lang)",
+  "lang": $((RANDOM % 4)),
   "status": "$(random_status)",
   "runningTime": $((RANDOM % 1000 + 1)),
   "runningMemory": $((RANDOM % 1024 + 1)),

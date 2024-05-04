@@ -30,33 +30,18 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "enum": [
-                            -9223372036854775808,
-                            9223372036854775807,
-                            1,
-                            1000,
-                            1000000,
-                            1000000000,
-                            60000000000,
-                            3600000000000
-                        ],
                         "type": "integer",
-                        "x-enum-varnames": [
-                            "minDuration",
-                            "maxDuration",
-                            "Nanosecond",
-                            "Microsecond",
-                            "Millisecond",
-                            "Second",
-                            "Minute",
-                            "Hour"
-                        ],
                         "name": "duration",
                         "in": "formData"
                     },
                     {
                         "type": "string",
                         "name": "note",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "name": "problemsJson",
                         "in": "formData"
                     },
                     {
@@ -98,7 +83,12 @@ const docTemplate = `{
             }
         },
         "/contest/getContestList": {
-            "get": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "Contest"
                 ],
@@ -106,12 +96,12 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "name": "length",
-                        "in": "query"
+                        "in": "formData"
                     },
                     {
                         "type": "integer",
                         "name": "startIndex",
-                        "in": "query"
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -127,6 +117,170 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/response.GetContestListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/contest/getContestSubmissionList": {
+            "get": {
+                "tags": [
+                    "Contest"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "cid",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.GetContestSubmissionListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/contest/getStandingsByRank": {
+            "get": {
+                "tags": [
+                    "Contest"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "cid",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "len",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "startIdx",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.GetStandingsByRankResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/contest/register": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Contest"
+                ],
+                "parameters": [
+                    {
+                        "description": "注册比赛",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RegisterContestRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.RegisterContestResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/contest/unregister": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Contest"
+                ],
+                "parameters": [
+                    {
+                        "description": "取消注册比赛",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UnregisterContestRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.UnregisterContestResponse"
                                         }
                                     }
                                 }
@@ -545,6 +699,15 @@ const docTemplate = `{
                         "$ref": "#/definitions/contest.ContestProblem"
                     }
                 },
+                "registered": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "rule": {
+                    "type": "string"
+                },
                 "startTime": {
                     "type": "string"
                 },
@@ -582,6 +745,40 @@ const docTemplate = `{
                 "RUNNING",
                 "CLOSE"
             ]
+        },
+        "contest.ProblemSolveStatus": {
+            "type": "object",
+            "properties": {
+                "failCnt": {
+                    "type": "integer"
+                },
+                "nick": {
+                    "type": "string"
+                },
+                "penalty": {
+                    "type": "integer"
+                },
+                "pid": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.StatusSet"
+                }
+            }
+        },
+        "contest.RankListData": {
+            "type": "object",
+            "properties": {
+                "pss": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/contest.ProblemSolveStatus"
+                    }
+                },
+                "uid": {
+                    "type": "string"
+                }
+            }
         },
         "model.LangSet": {
             "type": "integer",
@@ -650,6 +847,7 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "UnSubmit",
+                "UnAccept",
                 "Pending",
                 "Compiling",
                 "Judging",
@@ -664,6 +862,7 @@ const docTemplate = `{
             ],
             "x-enum-varnames": [
                 "UNSUBMIT",
+                "UNACCEPT",
                 "PENDING",
                 "COMPILING",
                 "JUDGING",
@@ -680,6 +879,9 @@ const docTemplate = `{
         "model.Submission": {
             "type": "object",
             "properties": {
+                "cid": {
+                    "type": "string"
+                },
                 "lang": {
                     "$ref": "#/definitions/model.LangSet"
                 },
@@ -730,9 +932,20 @@ const docTemplate = `{
                 }
             }
         },
+        "request.RegisterContestRequest": {
+            "type": "object",
+            "properties": {
+                "cid": {
+                    "type": "string"
+                }
+            }
+        },
         "request.SubmitRequest": {
             "type": "object",
             "properties": {
+                "cid": {
+                    "type": "string"
+                },
                 "lang": {
                     "type": "integer"
                 },
@@ -743,6 +956,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "submitTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UnregisterContestRequest": {
+            "type": "object",
+            "properties": {
+                "cid": {
                     "type": "string"
                 }
             }
@@ -796,6 +1017,17 @@ const docTemplate = `{
                 }
             }
         },
+        "response.GetContestSubmissionListResponse": {
+            "type": "object",
+            "properties": {
+                "submissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Submission"
+                    }
+                }
+            }
+        },
         "response.GetProblemListResponse": {
             "type": "object",
             "properties": {
@@ -812,6 +1044,26 @@ const docTemplate = `{
             "properties": {
                 "problem": {
                     "$ref": "#/definitions/model.Problem"
+                }
+            }
+        },
+        "response.GetStandingsByRankResponse": {
+            "type": "object",
+            "properties": {
+                "rankList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/contest.RankListData"
+                    }
+                },
+                "rule": {
+                    "type": "string"
+                },
+                "usernameList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -840,6 +1092,17 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "response.RegisterContestResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
                 }
             }
         },
@@ -872,8 +1135,10 @@ const docTemplate = `{
                 "duration": {
                     "$ref": "#/definitions/time.Duration"
                 },
+                "isRegistered": {
+                    "type": "boolean"
+                },
                 "note": {
-                    "description": "options",
                     "type": "string"
                 },
                 "startTime": {
@@ -903,6 +1168,17 @@ const docTemplate = `{
             "properties": {
                 "msg": {
                     "type": "string"
+                }
+            }
+        },
+        "response.UnregisterContestResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
                 }
             }
         },

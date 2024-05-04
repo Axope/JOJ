@@ -11,6 +11,12 @@ definitions:
         items:
           $ref: '#/definitions/contest.ContestProblem'
         type: array
+      registered:
+        items:
+          type: integer
+        type: array
+      rule:
+        type: string
       startTime:
         type: string
       status:
@@ -37,6 +43,28 @@ definitions:
     - REGISTER
     - RUNNING
     - CLOSE
+  contest.ProblemSolveStatus:
+    properties:
+      failCnt:
+        type: integer
+      nick:
+        type: string
+      penalty:
+        type: integer
+      pid:
+        type: string
+      status:
+        $ref: '#/definitions/model.StatusSet'
+    type: object
+  contest.RankListData:
+    properties:
+      pss:
+        items:
+          $ref: '#/definitions/contest.ProblemSolveStatus'
+        type: array
+      uid:
+        type: string
+    type: object
   model.LangSet:
     enum:
     - 0
@@ -85,6 +113,7 @@ definitions:
   model.StatusSet:
     enum:
     - UnSubmit
+    - UnAccept
     - Pending
     - Compiling
     - Judging
@@ -99,6 +128,7 @@ definitions:
     type: string
     x-enum-varnames:
     - UNSUBMIT
+    - UNACCEPT
     - PENDING
     - COMPILING
     - JUDGING
@@ -112,6 +142,8 @@ definitions:
     - UKE
   model.Submission:
     properties:
+      cid:
+        type: string
       lang:
         $ref: '#/definitions/model.LangSet'
       pid:
@@ -145,8 +177,15 @@ definitions:
       output:
         type: string
     type: object
+  request.RegisterContestRequest:
+    properties:
+      cid:
+        type: string
+    type: object
   request.SubmitRequest:
     properties:
+      cid:
+        type: string
       lang:
         type: integer
       pid:
@@ -154,6 +193,11 @@ definitions:
       submitCode:
         type: string
       submitTime:
+        type: string
+    type: object
+  request.UnregisterContestRequest:
+    properties:
+      cid:
         type: string
     type: object
   response.ChangePasswordResponse:
@@ -187,6 +231,13 @@ definitions:
       contest:
         $ref: '#/definitions/contest.Contest'
     type: object
+  response.GetContestSubmissionListResponse:
+    properties:
+      submissions:
+        items:
+          $ref: '#/definitions/model.Submission'
+        type: array
+    type: object
   response.GetProblemListResponse:
     properties:
       problems:
@@ -198,6 +249,19 @@ definitions:
     properties:
       problem:
         $ref: '#/definitions/model.Problem'
+    type: object
+  response.GetStandingsByRankResponse:
+    properties:
+      rankList:
+        items:
+          $ref: '#/definitions/contest.RankListData'
+        type: array
+      rule:
+        type: string
+      usernameList:
+        items:
+          type: string
+        type: array
     type: object
   response.GetSubmissionListResponse:
     properties:
@@ -216,6 +280,13 @@ definitions:
         type: integer
       username:
         type: string
+    type: object
+  response.RegisterContestResponse:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
     type: object
   response.RegisterResponse:
     properties:
@@ -236,8 +307,9 @@ definitions:
         type: string
       duration:
         $ref: '#/definitions/time.Duration'
+      isRegistered:
+        type: boolean
       note:
-        description: options
         type: string
       startTime:
         type: string
@@ -257,6 +329,13 @@ definitions:
     properties:
       msg:
         type: string
+    type: object
+  response.UnregisterContestResponse:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
     type: object
   time.Duration:
     enum:
@@ -306,29 +385,14 @@ paths:
       consumes:
       - multipart/form-data
       parameters:
-      - enum:
-        - -9223372036854775808
-        - 9223372036854775807
-        - 1
-        - 1000
-        - 1000000
-        - 1000000000
-        - 60000000000
-        - 3600000000000
-        in: formData
+      - in: formData
         name: duration
         type: integer
-        x-enum-varnames:
-        - minDuration
-        - maxDuration
-        - Nanosecond
-        - Microsecond
-        - Millisecond
-        - Second
-        - Minute
-        - Hour
       - in: formData
         name: note
+        type: string
+      - in: formData
+        name: problemsJson
         type: string
       - in: formData
         name: rule
@@ -354,12 +418,12 @@ paths:
       tags:
       - Contest
   /contest/getContestList:
-    get:
+    post:
       parameters:
-      - in: query
+      - in: formData
         name: length
         type: integer
-      - in: query
+      - in: formData
         name: startIndex
         type: integer
       responses:
@@ -372,6 +436,96 @@ paths:
                 data:
                   $ref: '#/definitions/response.GetContestListResponse'
               type: object
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Contest
+  /contest/getContestSubmissionList:
+    get:
+      parameters:
+      - in: query
+        name: cid
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GetContestSubmissionListResponse'
+              type: object
+      tags:
+      - Contest
+  /contest/getStandingsByRank:
+    get:
+      parameters:
+      - in: query
+        name: cid
+        type: string
+      - in: query
+        name: len
+        type: integer
+      - in: query
+        name: startIdx
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GetStandingsByRankResponse'
+              type: object
+      tags:
+      - Contest
+  /contest/register:
+    post:
+      parameters:
+      - description: 注册比赛
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterContestRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.RegisterContestResponse'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Contest
+  /contest/unregister:
+    post:
+      parameters:
+      - description: 取消注册比赛
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UnregisterContestRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.UnregisterContestResponse'
+              type: object
+      security:
+      - ApiKeyAuth: []
       tags:
       - Contest
   /index:

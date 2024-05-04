@@ -10,14 +10,12 @@ import (
 )
 
 var (
-	conn  *amqp.Connection
-	ch    *amqp.Channel
-	queue amqp.Queue
+	judgeSendConn  *amqp.Connection
+	judgeSendCh    *amqp.Channel
+	judgeSendQueue amqp.Queue
 )
 
-func InitMQ() error {
-	cfg := configs.GetRBTConfig()
-	log.LoggerSugar.Debugf("cfg = %+v", cfg)
+func InitJudgeSender(cfg configs.RabbitmqConfig) error {
 	username := cfg.Username
 	password := cfg.Password
 	host := cfg.Host
@@ -27,13 +25,13 @@ func InitMQ() error {
 	log.Logger.Debug(url)
 
 	var err error
-	if conn, err = amqp.Dial(url); err != nil {
+	if judgeSendConn, err = amqp.Dial(url); err != nil {
 		return err
 	}
-	if ch, err = conn.Channel(); err != nil {
+	if judgeSendCh, err = judgeSendConn.Channel(); err != nil {
 		return err
 	}
-	if queue, err = ch.QueueDeclare(
+	if judgeSendQueue, err = judgeSendCh.QueueDeclare(
 		"publisher",
 		true,
 		false,
@@ -45,29 +43,11 @@ func InitMQ() error {
 	}
 	return nil
 }
-
-func SendMsgByJson(msg []byte) error {
-	if err := ch.PublishWithContext(
-		context.TODO(),
-		"",
-		queue.Name,
-		false,
-		false,
-		amqp.Publishing{
-			DeliveryMode: amqp.Persistent,
-			ContentType:  "application/json",
-			Body:         msg,
-		}); err != nil {
-		return err
-	}
-	return nil
-}
-
 func SendMsgByProtobuf(msg []byte) error {
-	if err := ch.PublishWithContext(
+	if err := judgeSendCh.PublishWithContext(
 		context.TODO(),
 		"",
-		queue.Name,
+		judgeSendQueue.Name,
 		false,
 		false,
 		amqp.Publishing{
@@ -78,4 +58,80 @@ func SendMsgByProtobuf(msg []byte) error {
 		return err
 	}
 	return nil
+}
+
+// func SendMsgByJson(msg []byte) error {
+// 	if err := judgeSendCh.PublishWithContext(
+// 		context.TODO(),
+// 		"",
+// 		judgeSendQueue.Name,
+// 		false,
+// 		false,
+// 		amqp.Publishing{
+// 			DeliveryMode: amqp.Persistent,
+// 			ContentType:  "application/json",
+// 			Body:         msg,
+// 		}); err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
+
+var (
+	judgeResultRecvConn  *amqp.Connection
+	judgeResultRecvCh    *amqp.Channel
+	judgeResultRecvQueue amqp.Queue
+)
+
+func InitJudgeResultRecvier(cfg configs.RabbitmqConfig) (<-chan amqp.Delivery, error) {
+	username := cfg.Username
+	password := cfg.Password
+	host := cfg.Host
+	port := cfg.Port
+
+	url := fmt.Sprintf("amqp://%s:%s@%s:%d/", username, password, host, port)
+	log.Logger.Debug(url)
+
+	var err error
+	if judgeResultRecvConn, err = amqp.Dial(url); err != nil {
+		return nil, err
+	}
+	if judgeResultRecvCh, err = judgeResultRecvConn.Channel(); err != nil {
+		return nil, err
+	}
+	if judgeResultRecvQueue, err = judgeResultRecvCh.QueueDeclare(
+		"JudgeResponseQueue",
+		true,
+		false,
+		false,
+		false,
+		nil,
+	); err != nil {
+		return nil, err
+	}
+
+	msgs, err := judgeResultRecvCh.Consume(
+		judgeResultRecvQueue.Name,
+		"",
+		false, // auto ack
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return msgs, nil
+}
+
+func InitMQ() (<-chan amqp.Delivery, error) {
+	cfg := configs.GetRBTConfig()
+	log.LoggerSugar.Debugf("cfg = %+v", cfg)
+
+	if err := InitJudgeSender(cfg); err != nil {
+		return nil, err
+	}
+	return InitJudgeResultRecvier(cfg)
 }

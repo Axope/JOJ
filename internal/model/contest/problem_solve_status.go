@@ -6,11 +6,11 @@ import (
 )
 
 type ProblemSolveStatus struct {
-	PID     primitive.ObjectID
-	Nick    string
-	Status  model.StatusSet
-	Penalty int64
-	FailCnt int64
+	PID     primitive.ObjectID `bson:"_id" json:"pid"`
+	Nick    string             `bson:"nick" json:"nick"`
+	Status  model.StatusSet    `bson:"status" json:"status"`
+	Penalty int64              `bson:"penalty" json:"penalty"`
+	FailCnt int64              `bson:"failCnt" json:"failCnt"`
 }
 
 func NewProblemSolveStatus(problems []ContestProblem) []ProblemSolveStatus {

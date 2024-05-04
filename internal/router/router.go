@@ -50,8 +50,10 @@ func NewRouter() *gin.Engine {
 	}
 	publicContestGroup := router.Group("/contest")
 	{
-		publicContestGroup.GET("getContestList", v1.ContestAPI.GetContestList)
+		// publicContestGroup.GET("getContestList", v1.ContestAPI.GetContestList)
 		publicContestGroup.GET("/:cid", v1.ContestAPI.GetContest)
+		publicContestGroup.GET("getStandingsByRank", v1.ContestAPI.GetStandingsByRank)
+		publicContestGroup.GET("getContestSubmissionList", v1.ContestAPI.GetContestSubmissionList)
 	}
 
 	privateUserGroup := router.Group("/user")
@@ -70,6 +72,13 @@ func NewRouter() *gin.Engine {
 	privateContestGroup.Use(mjwt.JWTAuth(true))
 	{
 		privateContestGroup.POST("/createContest", v1.ContestAPI.CreateContest)
+	}
+	privateContestGroupNoAdmin := router.Group("/contest")
+	privateContestGroupNoAdmin.Use(mjwt.JWTAuth(false))
+	{
+		privateContestGroupNoAdmin.POST("getContestList", v1.ContestAPI.GetContestList)
+		privateContestGroupNoAdmin.POST("register", v1.ContestAPI.RegisterContest)
+		privateContestGroupNoAdmin.POST("unregister", v1.ContestAPI.UnregisterContest)
 	}
 
 	router.POST("/submit", mjwt.JWTAuth(false), v1.SubmitAPI.Submit)

@@ -87,6 +87,7 @@ func (u *userAPI) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, response.SuccessMsg(response.LoginResponse{
 		UID:      user.ID,
 		Username: user.Username,
+		Admin:    user.Admin,
 		Token:    token,
 	}))
 	log.LoggerSugar.Infof("user(%v) login success", user)

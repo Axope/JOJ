@@ -20,7 +20,7 @@ const maxRetries = 100
 type ACMStandings struct {
 	BindCID        primitive.ObjectID
 	ProblemsCnt    int
-	InfoPrefix     string // $cid:$uid
+	InfoPrefix     string // $cid:user:$uid
 	SolveSetPrefix string // $cid:$solveCnt
 	ZKeys          []string
 }
@@ -29,7 +29,7 @@ func NewACMStandings(cid primitive.ObjectID, problemsCnt int) (*ACMStandings, er
 	acm := &ACMStandings{
 		BindCID:        cid,
 		ProblemsCnt:    problemsCnt,
-		InfoPrefix:     cid.Hex() + ":",
+		InfoPrefix:     cid.Hex() + ":user:",
 		SolveSetPrefix: cid.Hex() + ":",
 	}
 	for i := 0; i <= problemsCnt; i++ {
@@ -168,6 +168,7 @@ func (acm *ACMStandings) Fail(uid uint, i int) error {
 		}
 		// update
 		problemSolveStatus[i].FailCnt++
+		problemSolveStatus[i].Status = model.UNACCEPT
 		pssJson, err := json.Marshal(problemSolveStatus)
 		if err != nil {
 			log.Logger.Error("json Marshal error", log.Any("err", err))
@@ -180,7 +181,7 @@ func (acm *ACMStandings) Fail(uid uint, i int) error {
 	}
 	return doTransactional(ctx, txf, InfoKey)
 }
-func (acm *ACMStandings) GetStandingsByRank(startIdx int64, len int64) ([][]ProblemSolveStatus, error) {
+func (acm *ACMStandings) GetStandingsByRank(startIdx int64, len int64) ([]RankListData, error) {
 	queryL, queryR := startIdx, startIdx+len
 
 	var tot int64
@@ -220,7 +221,7 @@ func (acm *ACMStandings) GetStandingsByRank(startIdx int64, len int64) ([][]Prob
 	ctx = context.TODO()
 	cmds, err := redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, uid := range uids {
-			pipe.Get(ctx, uid)
+			pipe.Get(ctx, acm.InfoPrefix+uid)
 		}
 		return nil
 	})
@@ -228,61 +229,81 @@ func (acm *ACMStandings) GetStandingsByRank(startIdx int64, len int64) ([][]Prob
 		return nil, err
 	}
 
-	res := make([][]ProblemSolveStatus, 0)
-	for _, cmd := range cmds {
+	res := make([]RankListData, 0)
+	for i, cmd := range cmds {
 		pssJson := cmd.(*redis.StringCmd).Val()
 		var problemSolveStatus []ProblemSolveStatus
 		if err := json.Unmarshal([]byte(pssJson), &problemSolveStatus); err != nil {
 			log.Logger.Error("json Unmarshal error", log.Any("err", err))
 			return nil, err
 		}
-		res = append(res, problemSolveStatus)
+		res = append(res, RankListData{
+			Uid: uids[i],
+			Pss: problemSolveStatus,
+		})
 	}
 	return res, nil
 }
 func (acm *ACMStandings) Close() error {
+	defer log.Logger.Sync()
+	defer log.LoggerSugar.Sync()
 	// 1. final standing store(rankList)
+	datas := make([]RankListData, 0)
 	ctx := context.TODO()
 	for i := acm.ProblemsCnt; i >= 0; i-- {
 		Zs, err := redis.ZRangeWithScores(ctx, acm.ZKeys[i], 0, -1)
 		if err != nil {
+			log.Logger.Debug("ZRangeWithScores error",
+				log.Any("key", acm.ZKeys[i]), log.Any("err", err))
 			return err
 		}
+		log.Logger.Debug("ZRangeWithScores", log.Any("Zs", Zs))
 		cmds, err := redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
 			for _, z := range Zs {
 				uidS, ok := z.Member.(string)
 				if !ok {
+					log.Logger.Error("assert error")
 					return errors.New("assert error")
 				}
-				pipe.Get(ctx, uidS)
+				log.LoggerSugar.Debugf("Get key(%v)", acm.InfoPrefix+uidS)
+				pipe.Get(ctx, acm.InfoPrefix+uidS)
 			}
 			return nil
 		})
 		if err != nil {
+			log.Logger.Error("Pipelined error", log.Any("err", err))
 			return err
 		}
 
-		datas := make([][]ProblemSolveStatus, 0)
-		for _, cmd := range cmds {
+		for i, cmd := range cmds {
 			pssJson := cmd.(*redis.StringCmd).Val()
-			var problemSolveStatus []ProblemSolveStatus
-			if err := json.Unmarshal([]byte(pssJson), &problemSolveStatus); err != nil {
+			var pss []ProblemSolveStatus
+			if err := json.Unmarshal([]byte(pssJson), &pss); err != nil {
 				log.Logger.Error("json Unmarshal error", log.Any("err", err))
 				return err
 			}
-			datas = append(datas, problemSolveStatus)
+			datas = append(datas, RankListData{
+				Uid: Zs[i].Member.(string),
+				Pss: pss,
+			})
 		}
+	}
+	log.Logger.Debug("datas", log.Any("datas", datas))
 
+	if len(datas) != 0 {
 		// mongo update
 		filter := bson.M{"_id": acm.BindCID}
-		update := bson.M{"$push": bson.M{"rankList": datas}}
-		if _, err = dao.GetContestColl().UpdateOne(
+		update := bson.D{{Key: "$set", Value: bson.D{{Key: "rankList", Value: datas}}}}
+		if _, err := dao.GetContestColl().UpdateOne(
 			context.Background(),
 			filter,
 			update,
 		); err != nil {
+			log.Logger.Error("UpdateOne error", log.Any("err", err))
 			return err
 		}
+		log.LoggerSugar.Debugf("mongo update, _id = %v, $push rankList %v",
+			acm.BindCID, datas)
 	}
 
 	// 2. redis key clear
@@ -291,24 +312,30 @@ func (acm *ACMStandings) Close() error {
 	for iter.Next(ctx) {
 		key := iter.Val()
 		if err := redis.Del(ctx, key); err != nil {
+			log.Logger.Error("redis Del error", log.Any("err", err))
 			return err
 		}
 	}
 	if err := iter.Err(); err != nil {
+		log.Logger.Error("iter err", log.Any("err", err))
 		return err
 	}
+	log.Logger.Info("user info clear done")
 
 	ctx = context.TODO()
 	iter = redis.Scan(ctx, 0, acm.SolveSetPrefix+"*", 0).Iterator()
 	for iter.Next(ctx) {
 		key := iter.Val()
 		if err := redis.Del(ctx, key); err != nil {
+			log.Logger.Error("redis Del error", log.Any("err", err))
 			return err
 		}
 	}
 	if err := iter.Err(); err != nil {
+		log.Logger.Error("iter err", log.Any("err", err))
 		return err
 	}
+	log.Logger.Info("contest solve info clear done")
 	return nil
 }
 

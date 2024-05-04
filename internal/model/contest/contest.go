@@ -10,6 +10,7 @@ import (
 	"github.com/Axope/JOJ/internal/dao"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ContestProblem struct {
@@ -18,16 +19,19 @@ type ContestProblem struct {
 	Title string             `bson:"title" json:"title"`
 }
 type Contest struct {
-	CID       primitive.ObjectID `bson:"_id,omitempty" json:"cid"`
-	Title     string             `bson:"title" json:"title"`
-	Status    ContestStatus      `bson:"status" json:"status"`
-	Standings Standings          `bson:"-" json:"-"`
-	Problems  []ContestProblem   `bson:"problems" json:"problems"`
-	StartTime time.Time          `bson:"startTime" json:"startTime"`
-	Duration  time.Duration      `bson:"duration" json:"duration"`
-	Note      string             `bson:"note" json:"note"`
-	// RankList  RankList           `bson:"rankList" json:"rankList"`
-	rwLock *sync.RWMutex `bson:"-" json:"-"`
+	CID        primitive.ObjectID `bson:"_id,omitempty" json:"cid"`
+	Title      string             `bson:"title" json:"title"`
+	Status     ContestStatus      `bson:"status" json:"status"`
+	Standings  Standings          `bson:"-" json:"-"`
+	Problems   []ContestProblem   `bson:"problems" json:"problems"`
+	StartTime  time.Time          `bson:"startTime" json:"startTime"`
+	Duration   time.Duration      `bson:"duration" json:"duration"`
+	Note       string             `bson:"note" json:"note"`
+	Registered []uint             `bson:"registered,omitempty" json:"registered,omitempty"`
+	rwLock     *sync.RWMutex      `bson:"-" json:"-"`
+	Rule       string             `bson:"rule" json:"rule"`
+
+	RankList []RankListData `bson:"rankList,omitempty" json:"-"` // 不直接存储
 }
 
 func NewContest(cid primitive.ObjectID, title string, problems []ContestProblem,
@@ -39,6 +43,7 @@ func NewContest(cid primitive.ObjectID, title string, problems []ContestProblem,
 		StartTime: startTime,
 		Duration:  duration,
 		Note:      note,
+		Rule:      rule,
 		rwLock:    &sync.RWMutex{},
 	}
 	standings, err := NewStandings(rule, c.CID, len(c.Problems))
@@ -56,45 +61,9 @@ func NewContest(cid primitive.ObjectID, title string, problems []ContestProblem,
 		c.Status = CLOSE
 	}
 
-	// TODO: rank list store to stable
 	return c, nil
 }
-func (c *Contest) Register(uid uint) error {
-	defer log.Logger.Sync()
-	c.rwLock.RLock()
-	defer c.rwLock.RUnlock()
 
-	if c.Status == RUNNING {
-		log.LoggerSugar.Debugf("uid(%v) register failed, contest is running", uid)
-		return fmt.Errorf("contest is running")
-	}
-	if c.Status == CLOSE {
-		log.LoggerSugar.Debugf("uid(%v) register failed, contest is close", uid)
-		return fmt.Errorf("contest is close")
-	}
-
-	log.LoggerSugar.Debugf("uid(%v) register success", uid)
-	c.Standings.Register(uid, c.Problems)
-
-	return nil
-}
-func (c *Contest) Unregister(uid uint) error {
-	defer log.Logger.Sync()
-	c.rwLock.RLock()
-	defer c.rwLock.RUnlock()
-
-	if c.Status == RUNNING {
-		log.LoggerSugar.Debugf("uid(%v) unregister failed, contest is running", uid)
-		return fmt.Errorf("contest is running")
-	}
-	if c.Status == CLOSE {
-		log.LoggerSugar.Debugf("uid(%v) unregister failed, contest is close", uid)
-		return fmt.Errorf("contest is close")
-	}
-
-	c.Standings.Unregister(uid)
-	return nil
-}
 func (c *Contest) Accept(uid uint, pid primitive.ObjectID, submitTime time.Time) error {
 	defer log.Logger.Sync()
 	c.rwLock.RLock()
@@ -135,28 +104,49 @@ func (c *Contest) Fail(uid uint, pid primitive.ObjectID) error {
 	}
 	return fmt.Errorf("pid(%v) is not part of contest(%v: %v)", pid, c.CID, c.Title)
 }
-func (c *Contest) GetStandingsByRank(startIdx int64, len int64) ([][]ProblemSolveStatus, error) {
+func (c *Contest) GetStandingsByRank(startIdx int64, len int64) ([]RankListData, error) {
 	return c.Standings.GetStandingsByRank(startIdx, len)
 }
-func (c *Contest) Start() {
-	// TODO: review
+func (c *Contest) Start() error {
 	c.rwLock.Lock()
 	defer c.rwLock.Unlock()
 
 	c.Status = RUNNING
-	go func() {
-		update := bson.D{{Key: "$set", Value: bson.D{{Key: "status", Value: c.Status}}}}
-		dao.GetContestColl().UpdateByID(context.TODO(), c.CID, update)
-	}()
+
+	update := bson.D{{Key: "$set", Value: bson.D{{Key: "status", Value: c.Status}}}}
+	if _, err := dao.GetContestColl().UpdateByID(context.TODO(), c.CID, update); err != nil {
+		return err
+	}
+
+	findOptions := options.FindOne()
+	findOptions.SetProjection(bson.D{{Key: "registered", Value: 1}})
+	var contest Contest
+	err := dao.GetContestColl().FindOne(context.TODO(), bson.D{{Key: "_id", Value: c.CID}}, findOptions).Decode(&contest)
+	if err != nil {
+		log.Logger.Error("FindOne error", log.Any("_id", c.CID), log.Any("findOptions", findOptions))
+		return err
+	}
+
+	for _, uid := range contest.Registered {
+		if err := c.Standings.Register(uid, c.Problems); err != nil {
+			return err
+		}
+	}
+	return nil
 }
-func (c *Contest) Close() {
+func (c *Contest) Close() error {
 	c.rwLock.Lock()
 	defer c.rwLock.Unlock()
-	
+
 	c.Status = CLOSE
-	go func() {
-		c.Standings.Close()
-		update := bson.D{{Key: "$set", Value: bson.D{{Key: "status", Value: c.Status}}}}
-		dao.GetContestColl().UpdateByID(context.TODO(), c.CID, update)
-	}()
+
+	if err := c.Standings.Close(); err != nil {
+		log.Logger.Error("close error", log.Any("err", err))
+		return err
+	}
+	update := bson.D{{Key: "$set", Value: bson.D{{Key: "status", Value: c.Status}}}}
+	if _, err := dao.GetContestColl().UpdateByID(context.TODO(), c.CID, update); err != nil {
+		return err
+	}
+	return nil
 }

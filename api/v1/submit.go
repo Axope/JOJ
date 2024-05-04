@@ -25,14 +25,15 @@ var SubmitAPI = new(submitAPI)
 //	@Security	ApiKeyAuth
 func (s *submitAPI) Submit(c *gin.Context) {
 	defer log.Logger.Sync()
+	defer log.LoggerSugar.Sync()
 
 	var req request.SubmitRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	var err error
+	if err = c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
 		log.Logger.Warn("ShouldBindJSON error", log.Any("err", err))
 		return
 	}
-	var err error
 	req.UID, err = jwt.GetJWT().GetUserID(c)
 	if err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
