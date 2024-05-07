@@ -76,7 +76,7 @@ func NewRouter() *gin.Engine {
 	privateContestGroupNoAdmin := router.Group("/contest")
 	privateContestGroupNoAdmin.Use(mjwt.JWTAuth(false))
 	{
-		privateContestGroupNoAdmin.POST("getContestList", v1.ContestAPI.GetContestList)
+		privateContestGroupNoAdmin.GET("getContestList", v1.ContestAPI.GetContestList)
 		privateContestGroupNoAdmin.POST("register", v1.ContestAPI.RegisterContest)
 		privateContestGroupNoAdmin.POST("unregister", v1.ContestAPI.UnregisterContest)
 	}

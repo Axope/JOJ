@@ -25,15 +25,15 @@ var ContestAPI = new(contestAPI)
 // GetContestList
 //
 //	@Tags		Contest
-//	@Param		data	formData	request.GetContestListRequest	true	"左端点, 长度"
+//	@Param		data	query		request.GetContestListRequest	true	"左端点, 长度"
 //	@Success	200		{object}	response.Response{data=response.GetContestListResponse}
-//	@Router		/contest/getContestList [post]
+//	@Router		/contest/getContestList [get]
 //	@Security	ApiKeyAuth
 func (*contestAPI) GetContestList(c *gin.Context) {
 	defer log.Logger.Sync()
 
 	var req request.GetContestListRequest
-	if err := c.ShouldBind(&req); err != nil {
+	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
 		log.Logger.Warn("ShouldBind error", log.Any("err", err))
 		return

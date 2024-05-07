@@ -83,7 +83,7 @@ const docTemplate = `{
             }
         },
         "/contest/getContestList": {
-            "post": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -96,12 +96,12 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "name": "length",
-                        "in": "formData"
+                        "in": "query"
                     },
                     {
                         "type": "integer",
                         "name": "startIndex",
-                        "in": "formData"
+                        "in": "query"
                     }
                 ],
                 "responses": {

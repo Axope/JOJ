@@ -418,12 +418,12 @@ paths:
       tags:
       - Contest
   /contest/getContestList:
-    post:
+    get:
       parameters:
-      - in: formData
+      - in: query
         name: length
         type: integer
-      - in: formData
+      - in: query
         name: startIndex
         type: integer
       responses:
