@@ -47,6 +47,9 @@ type Submission struct {
 	RunningMemory int                `bson:"runningMemory" json:"runningMemory"`
 	SubmitCode    string             `bson:"submitCode" json:"submitCode"`
 
+	ExecuteTime   int64 `bson:"executeTime,omitempty" json:"executeTime,omitempty"`
+	ExecuteMemory int64 `bson:"executeMemory,omitempty" json:"executeMemory,omitempty"`
+
 	// options
 	Point int `bson:"point,omitempty" json:"point,omitempty"`
 }

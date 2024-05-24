@@ -1,7 +1,9 @@
 package configs
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/spf13/viper"
 )
@@ -18,6 +20,10 @@ type Configs struct {
 
 var cfg Configs
 
+// var tags map[string]string
+var tags map[string]struct{}
+var tagsList []string
+
 func InitConfigs() {
 	viper.SetConfigName("configs")
 	viper.SetConfigType("yaml")
@@ -29,6 +35,20 @@ func InitConfigs() {
 
 	if err := viper.Unmarshal(&cfg); err != nil {
 		panic("unmarshal error")
+	}
+
+	// tags config
+	data, err := os.ReadFile("./configs/tags.json")
+	if err != nil {
+		panic(fmt.Sprintf("tags.json read error, err = %v", err))
+	}
+	err = json.Unmarshal(data, &tagsList)
+	if err != nil {
+		panic(fmt.Sprintf("decode tags json error, err = %v", err))
+	}
+	tags = make(map[string]struct{})
+	for _, tag := range tagsList {
+		tags[tag] = struct{}{}
 	}
 }
 
@@ -52,4 +72,12 @@ func GetDatasConfig() DatasConfig {
 }
 func GetRedisConfig() RedisConfig {
 	return cfg.Redis
+}
+
+func GetTagColor(tag string) bool {
+	_, ok := tags[tag]
+	return ok
+}
+func GetTagsList() []string {
+	return tagsList
 }

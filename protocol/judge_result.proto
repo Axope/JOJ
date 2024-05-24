@@ -21,4 +21,6 @@ message JudgeResult {
     string cid = 4;
     StatusSet status = 5;
     int64 submitTimestamp = 6;
+    int64 ExecuteTime = 7;
+    int64 ExecuteMemory = 8;
 }

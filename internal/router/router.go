@@ -43,6 +43,7 @@ func NewRouter() *gin.Engine {
 		publicProblemGroup.GET("getProblemList", v1.ProblemAPI.GetProblemList)
 		// publicProblemGroup.GET("getProblem", v1.ProblemAPI.GetProblem)
 		publicProblemGroup.GET("/:pid", v1.ProblemAPI.GetProblem)
+		publicProblemGroup.GET("getTags", v1.ProblemAPI.GetTags)
 	}
 	publicSubmissionGroup := router.Group("/submission")
 	{

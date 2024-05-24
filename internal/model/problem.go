@@ -10,12 +10,14 @@ type TestCase struct {
 }
 
 type Problem struct {
-	PID         primitive.ObjectID `bson:"_id,omitempty" json:"pid"`
-	Title       string             `bson:"title" json:"title"`
-	TimeLimit   int64              `bson:"timeLimit" json:"timeLimit"`
-	MemoryLimit int64              `bson:"memoryLimit" json:"memoryLimit"`
-	Description string             `bson:"description" json:"description"`
-	TestSamples []TestCase         `bson:"testSamples" json:"testSamples"`
+	PID          primitive.ObjectID `bson:"_id,omitempty" json:"pid"`
+	Title        string             `bson:"title" json:"title"`
+	TimeLimit    int64              `bson:"timeLimit" json:"timeLimit"`
+	MemoryLimit  int64              `bson:"memoryLimit" json:"memoryLimit"`
+	Description  string             `bson:"description" json:"description"`
+	TestSamples  []TestCase         `bson:"testSamples" json:"testSamples"`
+	InputFormat  string             `bson:"inputFormat" json:"inputFormat"`
+	OutputFormat string             `bson:"outputFormat" json:"outputFormat"`
 
 	// options
 	DataRange string   `bson:"dataRange,omitempty" json:"dataRange,omitempty"`

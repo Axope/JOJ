@@ -351,8 +351,23 @@ const docTemplate = `{
                         "in": "formData"
                     },
                     {
+                        "type": "string",
+                        "name": "inputFormat",
+                        "in": "formData"
+                    },
+                    {
                         "type": "integer",
                         "name": "memoryLimit",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "name": "outputFormat",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tagsJson",
                         "in": "formData"
                     },
                     {
@@ -430,6 +445,33 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/response.GetProblemListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/problem/getTags": {
+            "get": {
+                "tags": [
+                    "Problem"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.GetTagsResponse"
                                         }
                                     }
                                 }
@@ -811,8 +853,14 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "inputFormat": {
+                    "type": "string"
+                },
                 "memoryLimit": {
                     "type": "integer"
+                },
+                "outputFormat": {
+                    "type": "string"
                 },
                 "pid": {
                     "type": "string"
@@ -881,6 +929,12 @@ const docTemplate = `{
             "properties": {
                 "cid": {
                     "type": "string"
+                },
+                "executeMemory": {
+                    "type": "integer"
+                },
+                "executeTime": {
+                    "type": "integer"
                 },
                 "lang": {
                     "$ref": "#/definitions/model.LangSet"
@@ -1036,6 +1090,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/response.SimpleProblem"
                     }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -1074,6 +1131,17 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.Submission"
+                    }
+                }
+            }
+        },
+        "response.GetTagsResponse": {
+            "type": "object",
+            "properties": {
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     }
                 }
             }
@@ -1155,8 +1223,20 @@ const docTemplate = `{
         "response.SimpleProblem": {
             "type": "object",
             "properties": {
+                "memoryLimit": {
+                    "type": "integer"
+                },
                 "pid": {
                     "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "timeLimit": {
+                    "type": "integer"
                 },
                 "title": {
                     "type": "string"

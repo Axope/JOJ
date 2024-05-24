@@ -35,7 +35,7 @@ func (u *problemAPI) GetProblemList(c *gin.Context) {
 
 	log.LoggerSugar.Infof("GetProblemList:[%+v]", req)
 
-	problems, err := service.ProblemService.GetProblemList(&req)
+	total, problems, err := service.ProblemService.GetProblemList(&req)
 	if err != nil {
 		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
 		log.Logger.Warn("service: GetProblemList failed", log.Any("err", err))
@@ -44,6 +44,7 @@ func (u *problemAPI) GetProblemList(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response.SuccessMsg(response.GetProblemListResponse{
 		Problems: problems,
+		Total: total,
 	}))
 	log.LoggerSugar.Info("service: GetProblemList:", problems)
 }
@@ -77,6 +78,17 @@ func (u *problemAPI) GetProblem(c *gin.Context) {
 		Problem: *problem,
 	}))
 	log.LoggerSugar.Info("service: GetProblem:", problem)
+}
+
+// GetTags
+//
+//	@Tags		Problem
+//	@Success	200	{object}	response.Response{data=response.GetTagsResponse}
+//	@Router		/problem/getTags [get]
+func (u *problemAPI) GetTags(c *gin.Context) {
+	c.JSON(http.StatusOK, response.SuccessMsg(response.GetTagsResponse{
+		Tags: configs.GetTagsList(),
+	}))
 }
 
 // CreateProblem

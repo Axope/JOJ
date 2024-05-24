@@ -123,7 +123,11 @@ func (s *submitService) HandleSubmitResult(msgs <-chan amqp091.Delivery) {
 		}
 		filter := bson.D{{Key: "_id", Value: sid}}
 		status := model.GetStatusSet(judgeResult.Status)
-		update := bson.D{{Key: "$set", Value: bson.D{{Key: "status", Value: status}}}}
+		update := bson.D{{Key: "$set", Value: bson.D{
+			{Key: "status", Value: status},
+			{Key: "executeTime", Value: judgeResult.ExecuteTime},
+			{Key: "executeMemory", Value: judgeResult.ExecuteMemory},
+		}}}
 		log.LoggerSugar.Debugf("mongo filter(%v) update(%v)", filter, update)
 		_, err = dao.GetSubmissionColl().UpdateOne(context.Background(), filter, update)
 		if err != nil {

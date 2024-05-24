@@ -89,8 +89,12 @@ definitions:
         type: string
       description:
         type: string
+      inputFormat:
+        type: string
       memoryLimit:
         type: integer
+      outputFormat:
+        type: string
       pid:
         type: string
       point:
@@ -144,6 +148,10 @@ definitions:
     properties:
       cid:
         type: string
+      executeMemory:
+        type: integer
+      executeTime:
+        type: integer
       lang:
         $ref: '#/definitions/model.LangSet'
       pid:
@@ -244,6 +252,8 @@ definitions:
         items:
           $ref: '#/definitions/response.SimpleProblem'
         type: array
+      total:
+        type: integer
     type: object
   response.GetProblemResponse:
     properties:
@@ -268,6 +278,13 @@ definitions:
       submissions:
         items:
           $ref: '#/definitions/model.Submission'
+        type: array
+    type: object
+  response.GetTagsResponse:
+    properties:
+      tags:
+        items:
+          type: string
         type: array
     type: object
   response.LoginResponse:
@@ -320,8 +337,16 @@ definitions:
     type: object
   response.SimpleProblem:
     properties:
+      memoryLimit:
+        type: integer
       pid:
         type: string
+      tags:
+        items:
+          type: string
+        type: array
+      timeLimit:
+        type: integer
       title:
         type: string
     type: object
@@ -560,8 +585,17 @@ paths:
         name: description
         type: string
       - in: formData
+        name: inputFormat
+        type: string
+      - in: formData
         name: memoryLimit
         type: integer
+      - in: formData
+        name: outputFormat
+        type: string
+      - in: formData
+        name: tagsJson
+        type: string
       - in: formData
         name: testSamplesJson
         type: string
@@ -608,6 +642,20 @@ paths:
             - properties:
                 data:
                   $ref: '#/definitions/response.GetProblemListResponse'
+              type: object
+      tags:
+      - Problem
+  /problem/getTags:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GetTagsResponse'
               type: object
       tags:
       - Problem
